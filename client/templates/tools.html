@@ -32,14 +32,12 @@
     <!-- Icon -->
     <link rel="icon" sizes="16x16" type="image/png" href="{{url_for('static',filename='textures/icons/telescope.png')}}">
 
-    <!-- Font Awesome 6.2.0 Pro -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- Bootstrap select -->
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-select.min.css">
-    <!-- AdminLTE Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
     <!-- Loading animation -->
     <link rel="stylesheet" href="/static/css/client/loading.css">
+
+    {{ basic.load_basic_css() }}
 
 </head>
 
@@ -373,14 +371,10 @@
 	</div>
 	<!-- Modal container end -->
 
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    {{ basic.load_basic_js() }}
+    
     <!-- Bootstrap select -->
     <script src="/static/js/bootstrap/bootstrap-select.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
     <!-- Tools JS -->
     <script src="/static/js/client/tools.js"></script>
 </body>

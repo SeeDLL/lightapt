@@ -53,18 +53,16 @@
     <!-- Icon -->
     <link rel="icon" sizes="16x16" type="image/icon" href="{{url_for('static',filename='textures/icon.ico')}}">
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- Date Range Picker -->
     <link rel="stylesheet" href="/static/css/plugins/daterangepicker.min.css">
     <!-- Bootstrap select -->
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-select.min.css">
     <!-- tempusdominus-bootstrap-4 -->
     <link rel="stylesheet" href="/static/css/bootstrap/tempusdominus-bootstrap-4.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
     <!-- Loading animation -->
     <link rel="stylesheet" href="/static/css/client/loading.css">
+
+    {{ basic.load_basic_css() }}
 
 </head>
 
@@ -513,10 +511,8 @@
     </div>
     <!-- Modal container end -->
 
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    {{ basic.load_basic_js() }}
+    
     <!-- Moment -->
     <script src="/static/js/plugins/moment.min.js"></script>
     <!-- Date Range Picker -->
@@ -527,8 +523,6 @@
     <script src="/static/js/bootstrap/bootstrap-select.min.js"></script>
     <!-- Bootstrap select I18n -->
     <script src="/static/js/bootstrap/bootstrap-select-zh_CN.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
     <!-- Search JS -->
     <script src="/static/js/client/search.js"></script>
 </body>

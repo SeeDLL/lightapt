@@ -30,13 +30,15 @@
     <title> WebSSH </title>
 
     <link rel="icon" type="image/icon" href="/static/textures/icon.ico">
-    
+
     <link href="/static/css/plugins/xterm.min.css" rel="stylesheet" type="text/css" />
     <link href="/static/css/plugins/fullscreen.min.css" rel="stylesheet" type="text/css" />
-    <!-- Font Awesome 6.2.0 Pro -->
-    <link href="/static/css/fontawesome/fontawesome.min.css" rel="stylesheet">
-    <!-- AdminLTE Theme style -->
-    <link href="/static/css/adminlte.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/css/adminlte.min.css">
+
     <!-- Loading animation -->
     <link href="/static/css/client/loading.css" rel="stylesheet">
 
@@ -66,7 +68,6 @@
         body {
             font-family: '{{ font.family }}';
         }
-
     </style>
 </head>
 
@@ -91,19 +92,21 @@
         <section class="content">
             <div class="container-fluid">
                 <div class="container form-container" style="display: none">
-                    <form id="connect" action="" method="post" enctype="multipart/form-data" {% if debug %} novalidate{% end %}>
+                    <form id="connect" action="" method="post" enctype="multipart/form-data" {% if debug %} novalidate{%
+                        end %}>
                         <div class="row">
                             <div class="input-group input-group-sm">
                                 <div class="col">
                                     <label for="Hostname">主机</label>
-                                    <input class="form-control form-control-sm" type="text" id="hostname" name="hostname" value="" required>
+                                    <input class="form-control form-control-sm" type="text" id="hostname"
+                                        name="hostname" value="" required>
                                 </div>
                                 <div class="col">
                                     <label for="Port">端口</label>
-                                    <input class="form-control form-control-sm" type="number" id="port" name="port" placeholder="22" value="" min=1
-                                        max=65535>
+                                    <input class="form-control form-control-sm" type="number" id="port" name="port"
+                                        placeholder="22" value="" min=1 max=65535>
                                 </div>
-                            </div>                
+                            </div>
                         </div>
                         <div class="row">
                             <div class="input-group input-group-sm">
@@ -112,14 +115,16 @@
                                         <i class="fas fa-user"></i>
                                         用户名
                                     </label>
-                                    <input class="form-control form-control-sm" type="text" id="username" name="username" value="" required>
+                                    <input class="form-control form-control-sm" type="text" id="username"
+                                        name="username" value="" required>
                                 </div>
                                 <div class="col">
                                     <label for="Password">
                                         <i class="fas fa-lock"></i>
                                         密码
                                     </label>
-                                    <input class="form-control form-control-sm" type="password" id="password" name="password" value="">
+                                    <input class="form-control form-control-sm" type="password" id="password"
+                                        name="password" value="">
                                 </div>
                             </div>
                         </div>
@@ -130,14 +135,16 @@
                                         <i class="fas fa-key"></i>
                                         密钥
                                     </label>
-                                    <input class="form-control form-control-sm form-control-file" type="file" id="privatekey" name="privatekey" value="">
+                                    <input class="form-control form-control-sm form-control-file" type="file"
+                                        id="privatekey" name="privatekey" value="">
                                 </div>
                                 <div class="col">
                                     <label for="Passphrase">
                                         <i class="fas fa-key-skeleton"></i>
                                         密码短语
                                     </label>
-                                    <input class="form-control form-control-sm" type="password" id="passphrase" name="passphrase" value="">
+                                    <input class="form-control form-control-sm" type="password" id="passphrase"
+                                        name="passphrase" value="">
                                 </div>
                             </div>
                         </div>
@@ -148,7 +155,8 @@
                                         <i class="fas fa-user-secret"></i>
                                         共享密码
                                     </label>
-                                    <input class="form-control form-control-sm" type="password" id="totp" name="totp" value="">
+                                    <input class="form-control form-control-sm" type="password" id="totp" name="totp"
+                                        value="">
                                 </div>
                                 <div class="col">
                                 </div>
@@ -156,31 +164,43 @@
                         </div>
                         <input type="hidden" id="term" name="term" value="xterm-256color">
                         {% module xsrf_form_html() %}
-                        <button type="submit" class="btn btn-primary btn-block">
-                            <i class="fas fa-link"></i>
-                            连接
-                        </button>
-                        <button type="reset" class="btn btn-danger btn-block">
-                            <i class="fas fa-brush"></i>
-                            重置
-                        </button>
-                    </form>
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <button type="submit" class="btn btn-primary btn-block">
+                                    <i class="fas fa-link"></i>
+                                    连接
+                                </button>
+                            </div>
+                            <div class="col-sm-6">
+                                <button type="reset" class="btn btn-danger btn-block">
+                                    <i class="fas fa-brush"></i>
+                                    重置
+                                </button>
+                            </div>
+                        </div>
                 </div>
-
-                <div class="container">
-                    <div id="status" style="color: red;"></div>
-                    <div id="terminal"></div>
-                </div>
+                </form>
             </div>
-        </section>
-    </div>   
 
+            <div class="container">
+                <div id="status" style="color: red;"></div>
+                <div id="terminal"></div>
+            </div>
+    </div>
+    </section>
+    </div>
+
+    <!-- jQuery -->
     <script src="/static/js/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/static/js/adminlte.min.js"></script>
+
     <script src="/static/js/plugins/popper.min.js"></script>
     <script src="/static/js/plugins/xterm.min.js"></script>
     <script src="/static/js/plugins/xterm-addon-fit.min.js"></script>
-    <script src="/static/js/adminlte.min.js"></script>
-    <script src="/static/js/plugins/webssh.js"></script>
+    <script src="/static/js/plugins/webssh.min.js"></script>
 </body>
 
 </html>

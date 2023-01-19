@@ -29,10 +29,8 @@
 
     <title>Camera</title>
 
-    <!-- Font Awesome 6.2.0 Pro -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
-    <!-- AdminLTE Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
+    {{ basic.load_basic_css() }}
+    
     <!-- Animate -->
     <link rel="stylesheet" href="/static/css/plugins/animate.min.css">
     <!-- Loading animation -->
@@ -214,14 +212,11 @@
     </div>
 
     {% endraw %}
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
+    
+    {{ basic.load_basic_js() }}
+
     <!-- Vue -->
-    <script src="/static/js/plugins/vue2.min.js"></script>
+    <script src="/static/js/plugins/vue.min.js"></script>
     <!-- Vue -->
     <script src="/static/js/plugins/moment.min.js"></script>
     <!-- Hightlight -->

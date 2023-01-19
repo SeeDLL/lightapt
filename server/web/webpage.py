@@ -96,6 +96,34 @@ def create_html_page(app) -> None:
     def desktop():
         return render_template('desktop.html')
 
+    @app.route('/ndesktop',methods=['GET'])
+    @app.route('/ndesktop/',methods=['GET'])
+    @app.route('/ndesktop.html',methods=['GET'])
+    @login_required
+    def ndesktop():
+        return render_template('ndesktop.html')
+
+    @app.route('/ndesktop-system',methods=['GET'])
+    @app.route('/ndesktop-sysem/',methods=['GET'])
+    @app.route('/ndesktop-system.html',methods=['GET'])
+    @login_required
+    def ndesktop_sysem():
+        return render_template('ndesktop-system.html')
+
+    @app.route('/ndesktop-browser',methods=['GET'])
+    @app.route('/ndesktop-browser/',methods=['GET'])
+    @app.route('/ndesktop-browser.html',methods=['GET'])
+    @login_required
+    def ndesktop_browser():
+        return render_template('ndesktop-browser.html')
+
+    @app.route('/ndesktop-store',methods=['GET'])
+    @app.route('/ndesktop-store/',methods=['GET'])
+    @app.route('/ndesktop-store.html',methods=['GET'])
+    @login_required
+    def ndesktop_store():
+        return render_template('ndesktop-store.html')
+
     @app.route("/skymap",methods=['GET'])
     @app.route("/skymap/",methods=['GET'])
     @app.route("/skymap.html",methods=['GET'])
@@ -169,3 +197,83 @@ def create_html_page(app) -> None:
     @app.errorhandler(500)
     def server_error(error):
         return render_template('error.html',error="500_INTERNET_SERVER_ERROR"), 500
+
+from flask import Markup,Blueprint,current_app
+import os
+
+class _WebBasic(object):
+    """
+        Web Basic View interface
+    """
+
+    @staticmethod
+    def load_basic_js():
+        """
+            Load Basic JavaScript files
+            Includes the following files:
+                adminlte.min.js
+                jquery.min.js
+                bootstrap.bunble.min.js
+        """
+        js = """
+            <!-- jQuery -->
+            <script src="/static/js/jquery/jquery.min.js"></script>
+            <!-- Bootstrap 4 -->
+            <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+            <!-- AdminLTE App -->
+            <script src="/static/js/adminlte.min.js"></script>
+        """
+        return Markup(js)
+
+    @staticmethod
+    def load_basic_css():
+        """
+            Load basic CSS files
+            Includes the following files:
+                fontawesome.min.css
+                adminlte.min.css
+        """
+        css = """
+                <!-- Font Awesome -->
+                <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
+                <!-- Theme style -->
+                <link rel="stylesheet" href="/static/css/adminlte.min.css">
+            """
+        return Markup(css)
+
+class WebBasic(object):
+    """
+        Interfaces of the Web Basic
+    """
+
+    def __init__(self,app) -> None:
+        """
+            Construct a new Web Basic object
+            Args :
+                app : Flask application
+            Returns : None
+        """
+        if app is not None:
+            self.init_app(app)
+
+    def init_app(self, app) -> None:
+        """
+            Initialize the Web Basic object and bind it to the application
+            Args : 
+                app : Flask application
+            Returns : None
+        """
+        blueprint = Blueprint('basic', __name__,
+                              static_folder=os.path.join(os.getcwd(),"client",'static'))
+        app.register_blueprint(blueprint)
+
+        if not hasattr(app, 'extensions'):
+            app.extensions = {}
+        app.extensions['basic'] = _WebBasic
+        app.context_processor(self.context_processor)
+
+    @staticmethod
+    def context_processor():
+        return {
+            'basic': current_app.extensions['basic']
+        }

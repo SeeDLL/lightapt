@@ -31,20 +31,19 @@
 
     <link rel='Shortcut Icon' type='image/x-icon' href='/static/textures/icon.ico'>
 
-    <!-- Font Awesome 6.2.0 Pro -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="/static/css/plugins/OverlayScrollbars.min.css">
     <!-- Bootstrap select -->
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-select.min.css">
     <!-- Viewer -->
     <link rel="stylesheet" href="/static/css/plugins/viewer.min.css">
-    <!-- AdminLTE Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
     <!-- Loading animation -->
     <link rel="stylesheet" href="/static/css/client/loading.css">
     <!-- Device -->
     <link rel="stylesheet" href="/static/css/client/device.css">
+
+    {{ basic.load_basic_css() }}
+    
 </head>
 
 <body style="height: auto;" class="dark-mode">
@@ -1272,10 +1271,8 @@
     </div>
     <!-- Container Modal end -->
 
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    {{ basic.load_basic_js() }}
+
     <!-- overlayScrollbars -->
     <script src="/static/js/jquery/jquery.overlayScrollbars.min.js"></script>
     <!-- Bootstrap select -->
@@ -1286,8 +1283,6 @@
     <script src="/static/js/plugins/chart.min.js"></script>
     <!-- Viewer -->
     <script src="/static/js/plugins/viewer.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
     <!-- Device JS -->
     <script src="/static/js/client/devices.js"></script>
 </body>

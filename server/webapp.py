@@ -42,6 +42,9 @@ app.secret_key = "lightapt"
 # Add form fields protection
 csrf = CSRFProtect(app)
 
+from server.web.webpage import WebBasic
+WebBasic(app)
+
 auth = Blueprint("auth",__name__)
 # Login system
 login_system = LoginManager()
@@ -186,7 +189,7 @@ def login():
             if user.verify_password(password):  # 校验密码
                 login_user(user)
                 log.log(_("User login successful"))
-                return redirect('/desktop')
+                return redirect('/ndesktop')
     return render_template('login.html',form=login_form)
 
 @app.route("/logout", methods=["GET"])

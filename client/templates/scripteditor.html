@@ -31,8 +31,6 @@
 
     <link rel='Shortcut Icon' type='image/x-icon' href='/static/textures/icons/scripteditor.png'>
 
-    <!-- Font Awesome 6.2.0 Pro -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- Select2 -->
     <link rel="stylesheet" href="/static/css/plugins/select2.min.css">
     <!-- Select2 with bootstrap -->
@@ -41,10 +39,11 @@
     <link rel="stylesheet" href="/static/css/bootstrap/icheck-bootstrap.min.css">
     <!-- Bootstrap Table -->
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-table.min.css">
-    <!-- AdminLTE Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
     <!-- Loading animation -->
     <link rel="stylesheet" href="/static/css/client/loading.css">
+
+    {{ basic.load_basic_css() }}
+    
 </head>
 
 <body style="height: auto;" class="dark-mode">
@@ -426,10 +425,8 @@
         </section>
     </div>
 
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    {{ basic.load_basic_js() }}
+
     <!-- Select2 -->
     <script src="/static/js/plugins/select2.full.min.js"></script>
     <!-- Clipboard -->
@@ -446,8 +443,6 @@
     <script src="/static/js/bootstrap/bootstrap-table-reorder-rows.min.js"></script>
     <!-- Bootstrap Table Export -->
     <script src="/static/js/bootstrap/bootstrap-table-export.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
     <script>
         //Initialize Select2 Elements
         $('.select2').select2()

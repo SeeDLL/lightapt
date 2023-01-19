@@ -31,14 +31,13 @@
 
     <link rel='Shortcut Icon' type='image/x-icon' href='/static/textures/icons/indilib.png'>
 
-    <!-- Font Awesome 6.2.0 Pro -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- Bootstrap select -->
     <link rel="stylesheet" href="/static/css/bootstrap/bootstrap-select.min.css">
-    <!-- AdminLTE Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
     <!-- Loading animation -->
     <link rel="stylesheet" href="/static/css/client/loading.css">
+
+    {{ basic.load_basic_css() }}
+
     <style>
         .stupid-text{
             background-image: -webkit-linear-gradient(left, #147B96, #E6D205 25%, #147B96 50%, #E6D205 75%, #147B96);
@@ -296,16 +295,12 @@
 	</div>
 	<!-- Modal container end -->
 
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    {{ basic.load_basic_js() }}
+    
     <!-- Bootstrap select -->
     <script src="/static/js/bootstrap/bootstrap-select.min.js"></script>
     <!-- Bootstrap select I18n -->
     <script src="/static/js/bootstrap/bootstrap-select-zh_CN.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
     <!-- INDI Web -->
     <script src="/static/js/client/indi.js"></script>
 </body>

@@ -27,12 +27,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>问题反馈</title>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- icheck bootstrap -->
     <link rel="stylesheet" href="/static/css/bootstrap/icheck-bootstrap.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="/static/css/adminlte.min.css">
+
+    {{ basic.load_basic_css() }}
 
 </head>
 
@@ -82,12 +80,8 @@
     </div>
     <!-- /.content-wrapper -->
 
-    <!-- jQuery -->
-    <script src="/static/js/jquery/jquery.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="/static/js/adminlte.min.js"></script>
+    {{ basic.load_basic_js() }}
+    
 </body>
 
 </html>

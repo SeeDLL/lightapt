@@ -29,10 +29,8 @@
 
 	<title>Skymap</title>
 
-	<!-- Font Awesome 6.2.0 Pro -->
-	<link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
-	<!-- AdminLTE Theme style -->
-	<link rel="stylesheet" href="/static/css/adminlte.min.css">
+	{{ basic.load_basic_css() }}
+
 	<!-- Aladin Minify css -->
 	<link rel="stylesheet" href="/static/css/skymap/aladin.min.css">
 	<!-- Skymap css -->
@@ -597,12 +595,8 @@
 	</div>
 	<!-- Modal container end -->
 
-	<!-- jQuery -->
-	<script src="/static/js/jquery/jquery.min.js"></script>
-	<!-- Bootstrap 4 -->
-	<script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
-	<!-- AdminLTE App -->
-	<script src="/static/js/adminlte.min.js"></script>
+	{{ basic.load_basic_js() }}
+	
 	<!-- Aladin Minify JS -->
 	<script src="/static/js/skymap/aladin.min.js"></script>
 	<!-- Clipboard JS -->
