@@ -533,8 +533,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                 except KeyError as e:
                     logger.loge(_("No camera found or configuration is missing").format(str(e)))
                     return json.dumps({"error" : _("No camera found or configuration is missing")})
-                finally:
-                    break
+                break
             if case("telescope"):
                 try:
                     if c.config['indi']['telescope']['name'] is not None and c.config['indi']['telescope']['exec'] is not None:
@@ -543,8 +542,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                 except KeyError as e:
                     logger.loge(_("No telescope found or configuration is missing : {}").format(str(e)))
                     return json.dumps({"error" : _("No telescope found or configuration is missing")})
-                finally:
-                    break
+                break
             if case("focuser"):
                 try:
                     if c.config['indi']['focuser']['name'] is not None and c.config['indi']['focuser']['exec'] is not None:
@@ -553,8 +551,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                 except KeyError as e:
                     logger.loge(_("No focuser found or configuration is missing : {}").format(str(e)))
                     return json.dumps({"error" : _("No focuser found or configuration is missing")})
-                finally:
-                    break
+                break
             if case("filterwheel"):
                 try:
                     if c.config['indi']['filterwheel']['name'] is not None and c.config['indi']['filterwheel']['exec'] is not None:
@@ -563,8 +560,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                 except KeyError as e:
                     logger.loge(_("No filterwheel found or configuration is missing : {}").format(str(e)))
                     return json.dumps({"error" : _("No filterwheel found or configuration is missing")})
-                finally:
-                    break
+                break
             logger.loge(_("Unknown device type"))
             return json.dumps({"error" : _("Unknown device type")})
             

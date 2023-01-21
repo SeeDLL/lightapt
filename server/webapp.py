@@ -69,7 +69,7 @@ def load_password() -> None:
             os.mkdir(os.path.join(os.getcwd(),"config"))
         try:
             with open(_path,mode="w+",encoding="utf-8") as f:
-                f.write(json.dump([
+                f.write(json.dumps([
                     {"id" : 1 ,"username": "admin", "password": generate_password_hash("admin")},
                 ]))
         except OSError as e:
@@ -178,12 +178,16 @@ def login():
     if request.method == 'POST':
         username = login_form.username.data
         password = login_form.password.data
+
+        error = None
         if username is None or password is None:
             log.loge(_("Empty username or password"))
-            return render_template("login.html",error=_("Username and password is required"))
+            error=_("Username and password is required")
         user_info = get_user(username)
         if user_info is None:
-            return render_template("login.html" , error = _("User is not found in the database"))
+            error = _("User is not found in the database")
+        if error:
+            return render_template("login.html" , error = error)
         else:
             user = User(user_info)
             if user.verify_password(password):  # 校验密码
@@ -236,7 +240,7 @@ def register():
             # Save the password to a file right now to avoid overwriting
             try:
                 with open(os.path.join(os.getcwd(), "config" , "password.json"),mode="w+",encoding="utf-8") as f:
-                    f.write(json.dump(USERS,indent=4))
+                    f.write(json.dumps(USERS,indent=4))
             except json.JSONDecodeError as e:
                 log.loge(_("Error decoding password to json file : {}").format(str(e)))
             except OSError as e:
@@ -271,7 +275,7 @@ create_web_tools(app)
 from server.web.webdevice import create_indimanager_html
 create_indimanager_html(app,csrf)
 from server.web.websearch import create_search_template
-create_search_template(app,csrf)
+create_search_template(app)
 
 def run_server() -> None:
     """
@@ -290,7 +294,7 @@ def run_server() -> None:
             from waitress import serve
             log.log(_("Using waitress as wsgi server"))
             serve(app,host = c.config.get("host"),port=c.config.get("port"))
-        except ImportError as e:
+        except ImportError:
             logger.logw(_("Failed to import waitress as wsgi server , use default server"))
             app.run(host=c.config.get("host"),port=c.config.get("port"),threaded=True)
         

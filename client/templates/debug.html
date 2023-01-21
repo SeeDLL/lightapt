@@ -23,11 +23,12 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    {{ basic.load_basic_meta() }}
 
-    <title>Camera</title>
+    <title>调试工具</title>
+
+    {{ basic.icon() }}
 
     {{ basic.load_basic_css() }}
     
@@ -40,22 +41,12 @@
 </head>
 
 <body style="height: auto;" class="sidebar-mini sidebar-closed sidebar-collapse dark-mode">
+    
+    {{ basic.loading() }}
+
     {% raw %}
     <div id="root">
 
-        <!-- loading开始 -->
-        <div id="loading-animation">
-            <div id="loading-animation-center">
-                <div id="loading-animation-center-absolute">
-                    <div class="loading_object" id="loading_four"></div>
-                    <div class="loading_object" id="loading_three"></div>
-                    <div class="loading_object" id="loading_two"></div>
-                    <div class="loading_object" id="loading_one"></div>
-                </div>
-            </div>
-        </div>
-        <script>!function () { function e() { setTimeout(() => { $("#loading-animation").fadeOut(540) }, 500) } window.jQuery ? $(document).ready(() => { e() }) : document.onreadystatechange = (() => { "interactive" === document.readyState && e() }) }();</script>
-        <!-- loading 结束 -->
         <div class="wrapper">
             <!-- Main content -->
             <section class="content">

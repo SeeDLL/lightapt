@@ -39,41 +39,6 @@ def create_html_page(app) -> None:
     @app.route('/index.html',methods=['GET'])
     def index():
         return render_template('index.html')
-
-    @app.route('/camera',methods=['GET'])
-    @app.route('/camera/',methods=['GET'])
-    @app.route('/camera.html',methods=['GET'])
-    @login_required
-    def camera():
-        return render_template('camera.html')
-        
-    @app.route('/telescope',methods=['GET'])
-    @app.route('/telescope/',methods=['GET'])
-    @app.route('/telescope.html',methods=['GET'])
-    @login_required
-    def telescope():
-        return render_template('telescope.html')
-
-    @app.route('/focuser',methods=['GET'])
-    @app.route('/focuser/',methods=['GET'])
-    @app.route('/focuser.html',methods=['GET'])
-    @login_required
-    def focuser():
-        return render_template('focuser.html')
-
-    @app.route('/guider',methods=['GET'])
-    @app.route('/guider/',methods=['GET'])
-    @app.route('/guider.html',methods=['GET'])
-    @login_required
-    def guider():
-        return render_template('guider.html')
-
-    @app.route('/solver',methods=['GET'])
-    @app.route('/solver/',methods=['GET'])
-    @app.route('/solver.html',methods=['GET'])
-    @login_required
-    def solver():
-        return render_template('solver.html')
         
     @app.route('/novnc',methods=['GET'])
     @app.route('/novnc/',methods=['GET'])
@@ -173,6 +138,20 @@ def create_html_page(app) -> None:
     def settings():
         return render_template("settings.html")
 
+    @app.route("/faq",methods=['GET'])
+    @app.route("/faq/", methods=['GET'])
+    @app.route("/faq.html", methods=['GET'])
+    @login_required
+    def faq():
+        return render_template("faq.html")
+
+    @app.route("/calendar",methods=['GET'])
+    @app.route("/calendar/", methods=['GET'])
+    @app.route("/calendar.html", methods=['GET'])
+    @login_required
+    def calendar():
+        return render_template("calendar.html")
+
     @app.route("/bugreport", methods=['GET'])
     @app.route("/bugreport/", methods=['GET'])
     @app.route("/bugreport.html", methods=['GET'])
@@ -185,6 +164,13 @@ def create_html_page(app) -> None:
     @login_required
     def debug():
         return render_template("debug.html")
+
+    @app.route("/test",methods=['GET'])
+    @app.route("/test/", methods=['GET'])
+    @app.route("/test.html", methods=['GET'])
+    @login_required
+    def test():
+        return render_template("test.html")
 
     @app.errorhandler(403)
     def page_not_found(error):
@@ -205,6 +191,26 @@ class _WebBasic(object):
     """
         Web Basic View interface
     """
+
+    @staticmethod
+    def icon():
+        """
+            Load the icon file to display on the web templates
+        """
+        icon = '<link rel="icon" sizes="16x16" type="image/icon" href="/static/textures/icon.ico">'
+        return Markup(icon)
+        
+    @staticmethod
+    def load_basic_meta():
+        """
+            Load the basic metadata for the templates
+        """
+        meta = """
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+        """
+        return Markup(meta)
 
     @staticmethod
     def load_basic_js():
@@ -240,6 +246,188 @@ class _WebBasic(object):
                 <link rel="stylesheet" href="/static/css/adminlte.min.css">
             """
         return Markup(css)
+
+    @staticmethod
+    def load_danger_model():
+        """
+            Add a new danger model to templates
+            Args : None
+            Returns : Markup object
+        """
+        model = """
+            <!-- Modal container -->
+            <div class="container">
+                <!-- Central Modal Medium Danger -->
+                <div class="modal fade" id="centralModalDanger" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-notify modal-danger" role="document">
+                        <!--Content-->
+                        <div class="modal-content">
+                            <!--Header-->
+                            <div class="modal-header">
+                                <p class="heading lead" id="errorModalTitle">错误信息</p>
+                                <button type="button" class="close modal-voy-btn" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true" class="white-text">&times;</span>
+                                </button>
+                            </div>
+                            <!--Body-->
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <i class="fas fa-exclamation-triangle fa-4x mb-3 animated bounceIn"></i>
+                                    <p id="errorMessage" class="note note-danger">
+                                        未知错误
+                                    </p>
+                                    <p id="contactMessage" class="text-muted">
+                                        <small>如果你有任何问题，请将详细细节告知开发者</small>
+                                    </p>
+                                </div>
+                            </div>
+                            <!--Footer-->
+                            <div class="modal-footer justify-content-center">
+                                <a class="btn btn-outline-danger modal-voy-btn"
+                                    href="mailto:astro_air@126.com,fran.dibiase@gmail.com">
+                                    <i class="fas fa-envelope mr-1"></i>联系我们</a>
+                                <button type="button" class="btn btn-danger waves-effect modal-voy-btn" data-dismiss="modal">
+                                    Ok
+                                </button>
+                            </div>
+                        </div>
+                        <!--/.Content-->
+                    </div>
+                </div>
+            </div>
+            <!-- Modal container end -->
+        """
+        return Markup(model)
+
+    @staticmethod
+    def load_warning_model():
+        """
+            Add a warning model to templates
+        """
+        model = """
+            <div class="container">
+                <!-- Central Modal Medium Warning -->
+                <div class="modal fade" id="modalDoubleWarning" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-notify modal-warning modal-lg" role="document">
+                        <!--Content-->
+                        <div class="modal-content">
+                            <!--Header-->
+                            <div class="modal-header">
+                                <p class="heading lead" id="modalWarnTit">确认操作?</p>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true" class="white-text">&times;</span>
+                                </button>
+                            </div>
+                            <!--Body-->
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <i class="fas fa-question fa-4x mb-3 animated rotateIn text-danger"></i>
+                                    <p id="contWarnModal" class="text-warning"></p>
+                                    <p>你确定要执行这步操作吗?</p>
+                                </div>
+                            </div>
+                            <!--Footer-->
+                            <div class="modal-footer justify-content-center">
+                                <div class="row">
+                                    <div class="col-sm-6">
+                                        <a type="button" id="confirmDoubleWarn" class="btn btn-sm btn-warning btn-block">
+                                            确认
+                                            <i class="fas fa-check"></i>
+                                        </a>
+                                    </div>
+                                    <div class="col-sm-6">
+                                        <a type="button" class="btn btn-sm btn-outline-warning waves-effect btn-block"
+                                            data-dismiss="modal">
+                                            Nope
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--/.Content-->
+                    </div>
+                </div>
+                <!-- Central Modal Medium Warning-->
+            </div>
+        """
+        return Markup(model)
+
+    @staticmethod
+    def load_info_model():
+        """
+            Add a info model to templates
+        """
+        model = """
+            <!-- Container Modal -->
+            <div class="container">
+                <!-- Central Modal Medium Generic info -->
+                <div class="modal fade" id="infoModalGeneric" tabindex="-1" role="dialog" aria-labelledby="myModalLabel2"
+                    aria-hidden="true">
+                    <div class="modal-dialog modal-notify modal-info" role="document">
+                        <!--Content-->
+                        <div class="modal-content">
+                            <!--Header-->
+                            <div class="modal-header">
+                                <p class="heading lead">信息</p>
+                                <button type="button" id="closeModalInfo" class="close modal-voy-btn" data-dismiss="modal"
+                                    aria-label="Close">
+                                    <span aria-hidden="true" class="white-text">&times;</span>
+                                </button>
+                            </div>
+
+                            <!--Body-->
+                            <div class="modal-body">
+                                <div class="text-center">
+                                    <div class="spinner-border text-primary m-5" role="status">
+                                        <span class="sr-only">常规信息</span>
+                                    </div>
+                                    <p id="infoModalMessage" class="note note-info">
+                                        常规消息...
+                                    </p>
+                                    <p id="genericMessageinfo" class="text-muted">
+                                        <small></small>
+                                    </p>
+                                </div>
+                            </div>
+                            <!--Footer-->
+                            <div class="modal-footer justify-content-center">
+                                <button type="button" class="btn btn-primary modal-voy-btn" data-dismiss="modal">
+                                    Ok
+                                </button>
+                            </div>
+                        </div>
+                        <!--/.Content-->
+                    </div>
+                </div>
+                <!-- Central Modal Medium Danger-->
+            </div>
+            <!-- Container Modal end -->
+        """
+        return Markup(model)
+
+    @staticmethod
+    def loading():
+        """
+            Add a loading animation to the template
+        """
+        loading = """
+            <!-- loading开始 -->
+            <div id="loading-animation">
+                <div id="loading-animation-center">
+                    <div id="loading-animation-center-absolute">
+                        <div class="loading_object" id="loading_four"></div>
+                        <div class="loading_object" id="loading_three"></div>
+                        <div class="loading_object" id="loading_two"></div>
+                        <div class="loading_object" id="loading_one"></div>
+                    </div>
+                </div>
+            </div>
+            <script>!function () { function e() { setTimeout(() => { $("#loading-animation").fadeOut(540) }, 500) } window.jQuery ? $(document).ready(() => { e() }) : document.onreadystatechange = (() => { "interactive" === document.readyState && e() }) }();</script>
+            <!-- loading 结束 -->
+        """
+        return Markup(loading)
 
 class WebBasic(object):
     """

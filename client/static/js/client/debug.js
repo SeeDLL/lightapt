@@ -1,3 +1,22 @@
+/*
+ * Copyright(c) 2022-2023 Max Qian
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+ * MA 02110-1301, USA.
+ */
+
 JSON.format = formatJson = function (json, options) {
     try {
         JSON.parse(json)
@@ -71,7 +90,7 @@ var Vm = new Vue({
         consoleData: [], // 控制台日志
         messageData: [], // 消息记录
         instance: WebSocket, // ws instance
-        address: 'ws://127.0.0.1:9501', // 链接地址
+        address: 'ws://127.0.0.1:5000', // 链接地址
         alert: {
             class: 'success',
             state: false,

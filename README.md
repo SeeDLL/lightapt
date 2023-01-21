@@ -4,13 +4,11 @@
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=AstroAir-Develop-Team_lightapt&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=AstroAir-Develop-Team_lightapt)
 
 # LightAPT
-Light weight and Flexible Astro Photography Terminal
+Light weight and Flexible Astro Photography Terminal based on Python and JavaScript
 
 ## Architecture
-There are two architectures both are available in LightAPT.
 
-### Fixed Architecture
-Inspired by INDI (https://github.com/indilib/indi)
+The architecture in LightAPT is inspired by INDI (https://github.com/indilib/indi)
 
     LightAPT Client 1 ----|                      |---- LightAPT Driver A  ---- Dev X
                           |                      |
@@ -24,43 +22,28 @@ Inspired by INDI (https://github.com/indilib/indi)
 
     Client       INET         Server       Driver          Hardware
     processes    websocket    process      processes       devices
-
-### Standard Architecture (After some testing , I found this is fucking stupid)
-This method is likes P2P mode. Every device has its own websocket server and every client can only connect a device. This make sure that all devices can be connected flexible.
-
-    LightAPT Client 1 <-(websocket)-> wsdevice <-(alpyca or pyindi)-> Driver 1
-
-    LightAPT Client 2 <-(websocket)-> wsdevice <-(alpyca or pyindi)-> Driver 2
-
-    ...
-
-    LightAPT Client n <-(websocket)-> wsdevice <- (alpyca or pyindi)-> Driver n
     
 ## Features
-Including many useful features , and build in many powerful repositories
-+ Full devices supported via ASCOM & INDI
-+ Offline skymap and virtual viewer
-+ Remote connection supported via noVNC
+
+Though LihgtAPT is very tiny , but here are many good features
+
++ Based on INDI and ASCOM , most of the devices support
++ Online/Offline skymap , easy to build your image
++ Remote desktop connection support via noVNC
++ Remote shell support via WebSSH
 + Image viewer and compresser support
 + Small tools for image processing and star searching
-+ Beautiful User interface and all platforms supported
-+ Open source and stable , but also powerful
++ Beautiful web user interface and highly customizable
++ Code optimization support
++ Open source under GPL3 license
 
 ## Development
 Most of the codes are written in Python and JavaScript, and we will try to add more languages to be supported. No matter what languages you are good at, just join QQ group and discuss together.
 
 ### Build
+
 Just like the name of the project, only a few dependent libraries are needed to start
-
-#### Installation
-
-Fisrt , you should install all of the required libraries . You can run this command
-"""
-pip install -r requirements.txt
-"""
-
-However , when we tested this on Python3.7 , we can not install astropy from Pypi.Until now we do not find the solution to this problem.You can just ignore astropy and all of server will run normally.
-Pay attention to that the optional dependencies should be installed as possible for better performance and experience.
+Pay attention to that optional dependencies are recommended to be installed for the better performance and experience.After our test , all of the following dependencies are cross-platform.
 
 #### Requirements
 
@@ -74,6 +57,21 @@ Pay attention to that the optional dependencies should be installed as possible 
 + waitress(optional)
 + tornado(optional)
 
+#### Installation
+
+Fisrt , you should install all of the required libraries . You can run this command
+`
+pip install -r requirements.txt
+`
+
+Then get into the root directory , and run the following command
+`
+python lightserver.py
+`
+
+That's all right now and you can enjoy the awesome of the astronomy and universe.
+
 ## Support
+
 + QQ Group 710622107
 + Email astro_air@126.com

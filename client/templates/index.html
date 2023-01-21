@@ -23,17 +23,16 @@
 <html xml:lang="en-gb" lang="en-gb">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
-  <meta http-equiv="pragma" content="no-cache" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link rel="icon" sizes="16x16" type="image/icon" href="{{url_for('static',filename='textures/icon.ico')}}">
+  {{ basic.load_basic_meta() }}
+
+  <title>星空猎手</title>
+
+  {{ basic.icon() }}
 
   <link rel="stylesheet" type="text/css" href="/static/css/client/index.css">
 
-  <title>星空猎手</title>
-  <script src="{{url_for('static',filename='js/plugins/particles.min.js')}}"></script>
+  <script src="/static/js/plugins/particles.min.js"></script>
 
 </head>
 
@@ -42,7 +41,7 @@
   <div id="welcome">
     <h1>Welcom to LightAPT</h1>
     <p>使用星空猎手服务器可以合理的调度您的天文设备。<br>只需连接您的设备，即可体验宇宙。</p>
-    <a id="connect" href="/desktop">网络工具</a>
+    <a id="connect" href="/ndesktop">网络工具</a>
     <p style="width:70%;display:block;float:left;">多种多样的功能等待您去体验</p>
     <p id="version" style="font-size:1.5em;font-weight:bold;width:30%;display:block;float:left;text-align:right;"></p>
     <div id="credits">

@@ -446,6 +446,72 @@
       "url": "/imagecopper",
       "customTile": "",
       "urlRandomToken": false
+    },
+    "lightapt-debug": {
+      "addressBar": false,
+      "autoRun": 0,
+      "background": false,
+      "badge": 0,
+      "desc": "调试工具",
+      "icon": {
+        "type": "fa",
+        "content": "debug",
+        "bg": "#ee2746"
+      },
+      "openMode": "normal",
+      "plugin": false,
+      "position": {
+        "autoOffset": true,
+        "left": true,
+        "top": true,
+        "x": "x*0.05",
+        "y": "y*0.05"
+      },
+      "version": "1.0.0",
+      "poweredBy": "LightAPT",
+      "resizable": true,
+      "single": true,
+      "size": {
+        "height": "y*0.8-80",
+        "width": "x*0.8"
+      },
+      "title": "调试工具",
+      "url": "/debug",
+      "customTile": "",
+      "urlRandomToken": false
+    },
+    "lightapt-faq": {
+      "addressBar": false,
+      "autoRun": 0,
+      "background": false,
+      "badge": 0,
+      "desc": "FAQ",
+      "icon": {
+        "type": "fa",
+        "content": "question",
+        "bg": "#2f68da"
+      },
+      "openMode": "normal",
+      "plugin": false,
+      "position": {
+        "autoOffset": true,
+        "left": true,
+        "top": true,
+        "x": "x*0.05",
+        "y": "y*0.05"
+      },
+      "version": "1.0.0",
+      "poweredBy": "LightAPT",
+      "resizable": true,
+      "single": true,
+      "size": {
+        "height": "y*0.8-80",
+        "width": "x*0.8"
+      },
+      "title": "FAQ",
+      "url": "/faq",
+      "customTile": "",
+      "urlRandomToken": false
     }
   },
   "shortcuts": [
@@ -612,9 +678,21 @@
         "params": {},
         "hash": ""
       },
+      "itemPushed-93": {
+        "app": "lightapt-debug",
+        "title": "调试工具",
+        "params": {},
+        "hash": ""
+      },
       "itemPushed-85": {
         "app": "lightapt-browser",
         "title": "浏览器",
+        "params": {},
+        "hash": ""
+      },
+      "itemPushed-21": {
+        "app": "lightapt-faq",
+        "title": "FAQ",
         "params": {},
         "hash": ""
       },

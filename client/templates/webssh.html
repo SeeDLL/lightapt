@@ -31,16 +31,18 @@
 
     <link rel="icon" type="image/icon" href="/static/textures/icon.ico">
 
+    <!-- Xterm -->
     <link href="/static/css/plugins/xterm.min.css" rel="stylesheet" type="text/css" />
+    <!-- Xterm Fullscreen Support -->
     <link href="/static/css/plugins/fullscreen.min.css" rel="stylesheet" type="text/css" />
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="/static/css/adminlte.min.css">
-
     <!-- Loading animation -->
     <link href="/static/css/client/loading.css" rel="stylesheet">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="/static/css/plugins/OverlayScrollbars.min.css">
 
     <style>
         .row {
@@ -178,16 +180,14 @@
                                 </button>
                             </div>
                         </div>
-                </div>
+                    </div>
                 </form>
             </div>
-
             <div class="container">
                 <div id="status" style="color: red;"></div>
                 <div id="terminal"></div>
             </div>
-    </div>
-    </section>
+        </section>
     </div>
 
     <!-- jQuery -->
@@ -196,11 +196,22 @@
     <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="/static/js/adminlte.min.js"></script>
-
+    <!-- overlayScrollbars -->
+    <script src="/static/js/jquery/jquery.overlayScrollbars.min.js"></script>
+    <script>
+        $(function () {
+            $('body').overlayScrollbars({});
+        });
+    </script>
+    <!-- Popper JS -->
     <script src="/static/js/plugins/popper.min.js"></script>
+    <!-- Xterm JS -->
     <script src="/static/js/plugins/xterm.min.js"></script>
+    <!-- Xterm Addon -->
     <script src="/static/js/plugins/xterm-addon-fit.min.js"></script>
+    <!-- WebSSH JS -->
     <script src="/static/js/plugins/webssh.min.js"></script>
+
 </body>
 
 </html>

@@ -141,7 +141,7 @@ class WsCameraInterface():
                 # If there is no error infomation
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -185,7 +185,7 @@ class WsCameraInterface():
             r["message"] = _("Failed to disconnect from camera")
             try:
                 r["params"]["error"] = res.get('params').get('error')
-            except:
+            except KeyError:
                 pass
         else:
             r["status"] = 0
@@ -220,7 +220,7 @@ class WsCameraInterface():
             r["message"] = _("Failed to reconnect to camera")
             try:
                 r["params"]["error"] = res.get('params').get('error')
-            except:
+            except KeyError:
                 pass
         else:
             r["status"] = 0
@@ -257,7 +257,7 @@ class WsCameraInterface():
             try:
                 r["params"]["error"] = res.get('params').get('error')
                 logger.log(_("Error : {}").format(r["params"]["error"]))
-            except:
+            except KeyError:
                 pass
         else:
             r["status"] = 0
@@ -291,7 +291,7 @@ class WsCameraInterface():
             try:
                 r["params"]["error"] = res.get('params').get('error')
                 logger.loge(_("Error : {}").format(r["params"]["error"]))
-            except:
+            except KeyError:
                 pass
         else:
             r["status"] = 0
@@ -429,7 +429,7 @@ class WsCameraInterface():
             r["message"] = res.get("message")
             try:
                 r["params"]["error"] = res.get("params").get("error")
-            except:
+            except KeyError:
                 pass
         else:
             r["message"] = _("Exposure started")
@@ -470,7 +470,7 @@ class WsCameraInterface():
             r["message"] = res.get("message")
             try:
                 r["params"]["error"] = res.get("params").get("error")
-            except:
+            except KeyError:
                 pass
         else:
             r["message"] = res.get("message")
@@ -511,7 +511,7 @@ class WsCameraInterface():
             r["message"] = res.get("message")
             try:
                 r["params"]["error"] = res.get("params").get("error")
-            except:
+            except KeyError:
                 pass
         else:
             r["message"] = res.get("message")
@@ -553,7 +553,7 @@ class WsCameraInterface():
             r["message"] = res.get("message")
             try:
                 r["params"]["error"] = res.get("params").get("error")
-            except:
+            except KeyError:
                 pass
         else:
             r["message"] = res.get("message")

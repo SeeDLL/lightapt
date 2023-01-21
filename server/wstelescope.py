@@ -35,6 +35,15 @@ from utils.utility import switch
 from utils.lightlog import lightlog
 logger = lightlog(__name__)
 
+class WsTelescopeMessage(object):
+    """
+        A websocket message container
+    """
+    NotConnected = _("Telescope is not connected")
+    IsSlewing = _("Telescope is slewing")
+
+tmessage = WsTelescopeMessage()
+
 class WsTelescopeInterface(object):
     """
         Websocket Telescope Interface.\n
@@ -201,7 +210,7 @@ class WsTelescopeInterface(object):
                 # If there is no error infomation
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -234,15 +243,15 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         else:
             res = self.device.disconnect()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to disconnect from the telescope"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -271,15 +280,15 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         else:
             res = self.device.reconnect()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to reconnect to the telescope"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -314,7 +323,7 @@ class WsTelescopeInterface(object):
             try:
                 r["params"]["error"] = res.get('params').get('error')
                 logger.log(_("Error : {}").format(r["params"]["error"]))
-            except:
+            except KeyError:
                 pass
         else:
             r["status"] = 0
@@ -351,7 +360,7 @@ class WsTelescopeInterface(object):
             try:
                 r["params"]["error"] = res.get('params').get('error')
                 logger.loge(_("Error : {}").format(r["params"]["error"]))
-            except:
+            except KeyError:
                 pass
         else:
             r["status"] = 0
@@ -402,10 +411,10 @@ class WsTelescopeInterface(object):
             logger.loge(_("No coordinates provided"))
             r["message"] = _("No coordinates provided")
         elif not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_slewing:
-            logger.loge(_("Telescope is slewing"))
+            logger.loge(tmessage.IsSlewing)
             r["message"] = _("Telescope is slewing , please wait for a moment before continuing")
         elif self.device.info._is_parked:
             logger.loge(_("Telescope is parked"))
@@ -413,7 +422,9 @@ class WsTelescopeInterface(object):
         else:
             # If J2000 coordinates are provided , convert them to JNow coordinates
             if _j2000:
-                pass
+                """
+                    There need a JSON coordinate converter
+                """
             param = {
                 "ra" : _ra,
                 "dec" : _dec,
@@ -425,7 +436,7 @@ class WsTelescopeInterface(object):
                 logger.loge(_(f"Failed to goto from the telescope"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -447,8 +458,10 @@ class WsTelescopeInterface(object):
             return
         used_time = 0
         while used_time <= self.device.info.timeout:
-            self.remote_get_goto_status()
+            if not self.remote_get_goto_status():
+                break
             sleep(0.5)
+        self.remote_get_goto_result()
 
     def remote_abort_goto(self) -> None:
         """
@@ -471,20 +484,21 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         else:
             if not self.device.info._can_ahort_goto:
                 logger.loge(_("Cannot abort goto operation , telescope didn't support"))
                 r["message"] = _("Cannot abort goto operation , telescope didn't support")
             else:
+                self.thread = None
                 res = self.device.abort_goto()
                 if res.get('status')!= 0:
                     logger.loge(_(f"Failed to abort goto operation"))
                     r["message"] = _("Failed to abort goto operation")
                     try:
                         r["params"]["error"] = res.get('params').get('error')
-                    except:
+                    except KeyError:
                         pass
                 else:
                     r["status"] = 0
@@ -511,11 +525,13 @@ class WsTelescopeInterface(object):
             "id" : randbelow(1000),
             "status" : 1,
             "message" : "",
-            "params" : {}
+            "params" : {
+                "status" : False
+            }
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif not self.device.info._is_slewing:
             logger.loge(_("Telescope is not slewing"))
             r["message"] = _("Telescope is not slewing")
@@ -525,14 +541,17 @@ class WsTelescopeInterface(object):
                 logger.loge(_(f"Failed to get goto status"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
                 r["params"]["status"] = res.get('params').get('status')
+                r["params"]["ra"] = res.get('params').get('ra')
+                r["params"]["dec"] = res.get('params').get('dec')
             r["message"] = res.get('message')
         if self.on_send(r) is False:
             logger.loge(_("Failed to send message while executing get goto status command"))
+        return r["params"]["status"]
 
     def remote_get_goto_result(self) -> None:
         """
@@ -556,18 +575,18 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_slewing:
-            logger.loge(_("Telescope is slewing"))
-            r["message"] = _("Telescope is slewing")
+            logger.loge(tmessage.IsSlewing)
+            r["message"] = tmessage.IsSlewing
         else:
             res = self.device.get_goto_result()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to get goto result"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -601,18 +620,18 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_slewing:
-            logger.loge(_("Telescope is slewing"))
-            r["message"] = _("Telescope is slewing")
+            logger.loge(tmessage.IsSlewing)
+            r["message"] = tmessage.IsSlewing
         else:
             res = self.device.park()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to park"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -642,18 +661,18 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif not self.device.info._is_parked:
             logger.loge(_("Telescope is not parked"))
             r["message"] = _("Telescope is not parked")
         else:
-            res = self.device.unpack()
+            res = self.device.unpark()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to unpack"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -682,8 +701,8 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_parked:
             logger.loge(_("Telescope is already parked"))
             r["message"] = _("Telescope is already parked")
@@ -693,7 +712,7 @@ class WsTelescopeInterface(object):
                 logger.loge(_(f"Failed to park"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -725,15 +744,15 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         else:
             res = self.device.set_park_position(params)
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to set park position"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -762,21 +781,21 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_parked:
             logger.loge(_("Telescope is already parked"))
             r["message"] = _("Telescope is already parked")
         elif self.device.info._is_slewing:
-            logger.loge(_("Telescope is slewing"))
-            r["message"] = _("Telescope is slewing")
+            logger.loge(tmessage.IsSlewing)
+            r["message"] = tmessage.IsSlewing
         else:
             res = self.device.track()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to track"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -803,8 +822,8 @@ class WsTelescopeInterface(object):
             "params" : {}
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_parked:
             logger.loge(_("Telescope is already parked"))
             r["message"] = _("Telescope is already parked")
@@ -817,7 +836,7 @@ class WsTelescopeInterface(object):
                 logger.loge(_(f"Failed to abort track"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -849,8 +868,8 @@ class WsTelescopeInterface(object):
         _ra_rate = params.get("ra_rate",self.device.info.track_ra_rate)
         _dec_rate = params.get("dec_rate",self.device.info.track_dec_rate)
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         elif self.device.info._is_parked:
             logger.loge(_("Telescope is already parked"))
             r["message"] = _("Telescope is already parked")
@@ -864,7 +883,7 @@ class WsTelescopeInterface(object):
                 logger.loge(_(f"Failed to set track rate"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -894,8 +913,8 @@ class WsTelescopeInterface(object):
         }
         _mode = params.get("mode",self.device.info.track_mode)
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         else:
             param = {
                 "mode" : _mode
@@ -905,7 +924,7 @@ class WsTelescopeInterface(object):
                 logger.loge(_(f"Failed to set track mode"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0
@@ -938,15 +957,15 @@ class WsTelescopeInterface(object):
             }
         }
         if not self.device.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            r["message"] = _("Telescope is not connected")
+            logger.loge(tmessage.NotConnected)
+            r["message"] = tmessage.NotConnected
         else:
             res = self.device.get_location()
             if res.get('status')!= 0:
                 logger.loge(_(f"Failed to get location"))
                 try:
                     r["params"]["error"] = res.get('params').get('error')
-                except:
+                except KeyError:
                     pass
             else:
                 r["status"] = 0

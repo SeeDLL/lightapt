@@ -385,6 +385,67 @@ class ws_server(object):
                     if _case("RemoteHome"):
                         self.telescope.remote_home()
                         break
+                    if _case("RemoteTracking"):
+                        self.telescope.remote_track()
+                        break
+                    if _case("RemoteAbortTracking"):
+                        self.telescope.remote_abort_track()
+                        break
+                    if _case("RemoteSetTrackingMode"):
+                        self.telescope.remote_set_track_mode(_message.get("params"))
+                        break
+                    if _case("RemoteSetTrackingRate"):
+                        self.telescope.remote_set_track_rate(_message.get("params"))
+                        break
+                    if _case("RemoteGetLocation"):
+                        self.telescope.remote_get_location()
+                        break
+                    if _case("RemoteGetConfiguration"):
+                        self.telescope.remote_get_configuration(_message.get("params"))
+                        break
+                    if _case("RemoteSetConfiguration"):
+                        self.telescope.remote_set_configuration(_message.get("params"))
+                        break
+                    logger.loge(_("Unknown telescope event received from remote client"))
+                    break
+                break
+            if case("focuser"):
+                for _case in switch(event):
+                    if _case("RemoteConnect"):
+                        break
+                    if _case("RemoteDisconnect"):
+                        break
+                    if _case("RemoteReconnect"):
+                        break
+                    if _case("RemoteScanning"):
+                        break
+                    if _case("RemotePolling"):
+                        break
+                    if _case("RemoteMoveTo"):
+                        break
+                    if _case("RemoteMoveStep"):
+                        break
+                    if _case("RemoteGetTemperature"):
+                        break
+                    if _case("RemoteGetConfiguration"):
+                        break
+                    if _case("RemoteSetConfiguration"):
+                        break
+                    logger.loge(_("Unknown telescope event received from remote client"))
+                    break
+                break
+            if case("filterwheel"):
+                for _case in switch(event):
+                    if _case("RemoteConnect"):
+                        break
+                    if _case("RemoteDisconnect"):
+                        break
+                    if _case("RemoteReconnect"):
+                        break
+                    if _case("RemoteScanning"):
+                        break
+                    if _case("RemotePolling"):
+                        break
                     logger.loge(_("Unknown telescope event received from remote client"))
                     break
                 break

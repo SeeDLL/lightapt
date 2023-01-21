@@ -23,23 +23,20 @@
 <html lang="en">
 
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    
+    {{ basic.load_basic_meta() }}
 
     <title>忘记密码</title>
 
-    <!-- Icon -->
-    <link rel="icon" sizes="16x16" type="image/icon" href="{{url_for('static',filename='textures/icon.ico')}}">
-
-    <!-- icheck bootstrap -->
-    <link rel="stylesheet" href="/static/css/bootstrap/icheck-bootstrap.min.css">
+    {{ basic.icon() }}
 
     {{ basic.load_basic_css() }}
 
 </head>
 
 <body class="dark-mode">
+
+    {{ basic.loading() }}
     
     
     {{ basic.load_basic_js() }}

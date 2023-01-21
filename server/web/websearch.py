@@ -21,7 +21,7 @@ Boston, MA 02110-1301, USA.
 from flask import render_template,request,Flask
 from flask_login import login_required
 
-def create_search_template(app : Flask , csrf):
+def create_search_template(app : Flask):
     """
         Create a search template
     """

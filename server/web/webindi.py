@@ -306,20 +306,3 @@ def create_indiweb_manager(app : Flask,csrf) -> None:
     @login_required
     def get_devices():
         return json.dumps(indi_device.get_devices())
-
-    ###############################################################################
-    # Startup standalone server
-    ###############################################################################
-
-
-    def main():
-        """Start autostart profile if any"""
-        global active_profile
-
-        for profile in db.get_profiles():
-            if profile['autostart']:
-                start_profile(profile['name'])
-                active_profile = profile['name']
-                break
-
-        log.log("Exiting")
