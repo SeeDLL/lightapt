@@ -63,5 +63,16 @@
     },
     "solver" : {
         "astrometry" : "/home/max/lightapt/test/data"
+    },
+    "virtualgps" : {
+        "enable" : false,
+        "lat" : "30",
+        "lon" : "120",
+        "elevation" : 180
+    },
+    "ssl" : {
+        "enable" : false,
+        "crt" : "",
+        "key" : ""
     }
 }

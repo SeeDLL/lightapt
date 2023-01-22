@@ -414,7 +414,7 @@
       "customTile": "",
       "urlRandomToken": false
     },
-    "lightapt-imagecopper": {
+    "lightapt-imagecropper": {
       "addressBar": false,
       "autoRun": 0,
       "background": false,
@@ -443,7 +443,7 @@
         "width": "x*0.8"
       },
       "title": "图像裁剪",
-      "url": "/imagecopper",
+      "url": "/imagecropper",
       "customTile": "",
       "urlRandomToken": false
     },
@@ -548,12 +548,6 @@
     {
       "app": "lightapt-imageviewer",
       "title": "图像查看",
-      "params": {},
-      "hash": ""
-    },
-    {
-      "app": "lightapt-imagecopper",
-      "title": "图像裁剪",
       "params": {},
       "hash": ""
     }
@@ -673,7 +667,7 @@
         "hash": ""
       },
       "itemPushed-92": {
-        "app": "lightapt-imagecopper",
+        "app": "lightapt-imagecropper",
         "title": "图像裁剪",
         "params": {},
         "hash": ""

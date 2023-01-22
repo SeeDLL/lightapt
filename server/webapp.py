@@ -19,6 +19,7 @@ Boston, MA 02110-1301, USA.
 """
 
 
+import threading
 from utils.lightlog import lightlog
 log = lightlog(__name__)
 
@@ -44,7 +45,7 @@ csrf = CSRFProtect(app)
 
 from server.web.webpage import WebBasic
 WebBasic(app)
-
+has_socketio = False
 auth = Blueprint("auth",__name__)
 # Login system
 login_system = LoginManager()
@@ -243,9 +244,13 @@ def register():
                     f.write(json.dumps(USERS,indent=4))
             except json.JSONDecodeError as e:
                 log.loge(_("Error decoding password to json file : {}").format(str(e)))
+                error = str(e)
             except OSError as e:
                 log.loge(_("Failed to save password to json file : {}").format(str(e)))
-            return render_template("register.html", error = error , info = info)
+                error = str(e)
+            if error:
+                return render_template("register.html", error = error , info = info)
+            return render_template("login.html",info=_("User registered successfully"))
     return render_template('register.html')
 
 @app.route("/forget-password",methods=["GET","POST"])
@@ -258,9 +263,6 @@ def forget_password():
 if not c.config.get('debug'):
     logger = logging.getLogger('werkzeug')
     logger.setLevel(logging.ERROR)
-# Disable waitress logging system
-logger = logging.getLogger('waitress')
-logger.setLevel(logging.ERROR)
 
 import server.config as c
 
@@ -277,6 +279,32 @@ create_indimanager_html(app,csrf)
 from server.web.websearch import create_search_template
 create_search_template(app)
 
+# If the virtual gps is available
+if c.config["virtualgps"]["enable"]:
+    # I think flask socketio had some strange bug which will stop the server update and response the request
+    from flask_socketio import SocketIO
+    has_socketio = True
+    socketio = SocketIO(app)
+    from server.plugins.virtualgps import VirtualGPS
+    virtualgps = VirtualGPS()
+    virtualgps_thread = threading.Thread(target=virtualgps.start)
+    # This is for high version compatibility
+    try:
+        virtualgps_thread.daemon = True
+    except:
+        virtualgps_thread.setDaemon(True)
+    # virtualgps will run in a separate thread
+    virtualgps_thread.start()
+    # Revieve the connection from client
+    from server.web.webgps import WebGPS
+    WebGPS()
+    virtualgpsthread = None
+    @socketio.on('connect',namespace="/gpspanel")
+    def handle_gps_connect():
+        global virtualgpsthread
+        if virtualgpsthread is None:
+            virtualgpsthread = socketio.start_background_task(target=WebGPS.background_thread)
+
 def run_server() -> None:
     """
         Start the server | 启动服务器
@@ -284,17 +312,39 @@ def run_server() -> None:
         Return: None
         NOTE : All of the c.configuration parameters are already defined before starting the server
     """
+    sslkey = None
+    try:
+        if c.config["ssl"]["enable"]:
+            crt = c.config["ssl"].get("crt")
+            key = c.config["ssl"].get("key")
+            if crt is None or key is None:
+                log.loge(_("SSL certificate or key not provided , just start a http server"))
+                raise FileNotFoundError
+            else:
+                if crt.find("/") != -1:
+                    if not os.path.isfile(crt):
+                        log.loge(_("SSL certificate not found"))
+                        raise FileNotFoundError
+                if key.find("/") != -1:
+                    if not os.path.isfile(key):
+                        log.loge(_("SSL key not found"))
+                        raise FileNotFoundError
+                crt = os.path.join(os.getcwd(),"config",crt)
+                key = os.path.join(os.getcwd(),"config",key)
+                sslkey = (crt,key)
+    except (FileNotFoundError,KeyError):
+        pass
+                
     if c.config.get("debug") is True:
         log.log(_("Running debug web server on {}:{}").format(c.config.get('host'),c.config.get('port')))
-        app.run(host=c.config.get("host"), port=c.config.get("port"),threaded=c.config.get("threaded"),debug=c.config.get("debug"))
+        if has_socketio:
+            socketio.run(app,host=c.config.get("host"), port=c.config.get("port"),debug=c.config.get("debug"))
+        else:
+            app.run(host=c.config.get("host"), port=c.config.get("port"),debug=c.config.get("debug"),ssl_context = sslkey)
     else:
         log.log(_("Running web server on {}:{}").format(c.config.get('host'),c.config.get('port')))
-        try:
-            # We hope to use waitress as a high performance wsgi server
-            from waitress import serve
-            log.log(_("Using waitress as wsgi server"))
-            serve(app,host = c.config.get("host"),port=c.config.get("port"))
-        except ImportError:
-            logger.logw(_("Failed to import waitress as wsgi server , use default server"))
-            app.run(host=c.config.get("host"),port=c.config.get("port"),threaded=True)
+        if has_socketio:
+            socketio.run(app,host=c.config.get("host"),port=c.config.get("port"))
+        else:
+            app.run(host=c.config.get("host"),port=c.config.get("port"),threaded=c.config.get("thread"),ssl_context = sslkey)
         

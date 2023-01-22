@@ -48,13 +48,15 @@ Pay attention to that optional dependencies are recommended to be installed for 
 #### Requirements
 
 + astropy(optional)
++ eventlet
 + flask
 + flask-login
++ flask-socketio
++ flask-wtf
 + numpy
 + paramiko(optional)
 + psutil(optional)
 + requsets
-+ waitress(optional)
 + tornado(optional)
 
 #### Installation

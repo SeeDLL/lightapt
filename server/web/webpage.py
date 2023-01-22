@@ -110,6 +110,13 @@ def create_html_page(app) -> None:
     def imageviewer():
         return render_template('imageviewer.html')
 
+    @app.route("/imagecropper",methods=['GET'])
+    @app.route("/imagecropper/",methods=['GET'])
+    @app.route("/imagecropper.html",methods=['GET'])
+    @login_required
+    def imagecropper():
+        return render_template('imagecropper.html')
+
     @app.route("/search",methods=['GET'])
     @app.route("/search/",methods=['GET'])
     @app.route("/search.html",methods=['GET'])
@@ -144,6 +151,12 @@ def create_html_page(app) -> None:
     @login_required
     def faq():
         return render_template("faq.html")
+
+    @app.route("/license",methods=['GET'])
+    @app.route("/license/", methods=['GET'])
+    @app.route("/license.html", methods=['GET'])
+    def licenses():
+        return render_template("license.html")
 
     @app.route("/calendar",methods=['GET'])
     @app.route("/calendar/", methods=['GET'])
