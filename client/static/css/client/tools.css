@@ -1,141 +1,92 @@
-body {
-	float: left;
-	background: rgb(110, 132, 163);
-	font-family: 'Roboto Light', Arial, Helvetica;
-	font-size:16px;
-	font-weight: normal;
-	color: #fff;
-	padding: 0;
-}
-
-.warning {
-    color: #FF0000;
-}
-
-.panel_container {
-	width: 480px;
-	margin-left: 0px;
-}
-
-#coordtime {
-	display: block;
-	width: 480px;
-	color: #fff;
-	margin: 10px auto 0px auto;
-}
-
-.label {
-	display: inline-block;
-	width: 75px;
-	font-size: 0.85em;
-	padding: 1px 5px;
-	background-color: #333;
-}
-
-.gpsfix_obtained {
-	background-color: #99cc00;
-}
-
-.gpsvalues {
-	width: 150px;
-	color: white;
-	font-size: 0.90em;
-	display: inline-block;
-	text-align: left;
-	margin-left: 5px;
-}
-
-.time {
-	margin-top: 5px;
-	margin-left: 5px;
-	color: white;
-}
-
-#displayctl {
-	width: 480px;
-	margin-top: 5px;
-}
-
-#mapcontainer, #skymapcontainer, #gpsdetailscontainer {
-	width: 480px;
-	height: 400px;
-	margin-top: 10px;
-}
-
-#mapcontainer {
-	display:block;
-	margin-top: 10px;
-}
-
-#skymapcontainer {
-	display:none;
-	margin-bottom: -10px;
-}
-
-#gpsdetailscontainer {
-	display:none;
-	position: relative;
-	overflow:hidden;
-}
-
-#map {
-	width: 480px;
-	height: 400px;
-}
-
-#sschart {
-	display: block;
-	height:100px;
-	position:absolute;
-	bottom: 0px;
-	margin-left: 5px;
-	z-index: 100;
-}
-
-#skymap {
-	display: block;
-	width: 340px;
-	height: 340px;
-	margin: 20px auto 0px auto;
-}
-
 #legend {
-	width: 350px;
-	text-align: left;
+	text-align: center;
 	font-family: 'Roboto Light', Arial, Helvetica;
 	font-size: 0.80em;
-	margin: 5px auto 0px auto;
 }
 
-#gpsdetails {
+#polaris,
+#moon,
+#sun,
+#planets {
+	width: 480px;
+	margin-top: 10px;
+}
+
+#reticle {
+	width: 280px;
+	background-image: url('/static/textures/icons/reticle.png');
+	background-repeat: no-repeat;
+	background-size: 280px;
 	display: block;
-	width: 460px;
-	font-family: 'Roboto Light', Arial, Helvetica;
-	font-size: 0.80em;
+	overflow: hidden;
+	float: left;
+	margin-right: 10px;
+	margin-left: 10px;
 }
 
-#gpsinfo {
-	display: inline-block;
-	vertical-align: top;
-	width: 50%;
+#polaris_marker {
+	width: 280px;
 }
 
-.gpshdr {
-	width: 90px;
+.polarishdr {
+	width: 120px;
 }
 
-#gpssats {
-	display: inline-block;
-	vertical-align: top;
-	margin-left: 20px;
+.polarisdata {
+	text-align: right;
 }
 
-.blink {
-  animation: blinker 1s step-start infinite;
+#moon {
+	display: none;
 }
 
-@keyframes blinker {
-  50% {
-    opacity: 0;
-  }
+#moon img {
+	width: 150px;
+	margin: 50px 20px 0px 0px;
+	float: left;
+}
+
+.moonhdr {
+	width: 180px;
+}
+
+.moondata {
+	text-align: right;
+}
+
+
+.sunhdr {
+	width: 180px;
+}
+
+.sundata {
+	text-align: right;
+}
+
+#planets {
+	display: none;
+}
+
+#planets img {
+	margin-top: 30px;
+}
+
+.planetshdr {
+	width: 80px;
+}
+
+.planetshdrdata {
+	width: 75px;
+	text-align: right;
+	font-weight: bold;
+}
+
+.planetsdata {
+	text-align: right;
+}
+
+.img-responsive {
+	display: block;
+	height: auto;
+	max-width: 100%;
 }

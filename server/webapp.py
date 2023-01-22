@@ -278,6 +278,8 @@ from server.web.webdevice import create_indimanager_html
 create_indimanager_html(app,csrf)
 from server.web.websearch import create_search_template
 create_search_template(app)
+from server.web.webephem import create_web_ephem
+create_web_ephem(app)
 
 # If the virtual gps is available
 if c.config["virtualgps"]["enable"]:

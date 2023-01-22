@@ -185,6 +185,13 @@ def create_html_page(app) -> None:
     def test():
         return render_template("test.html")
 
+    @app.route("/lock",methods=['GET'])
+    @app.route("/lock/", methods=['GET'])
+    @app.route("/lock.html", methods=['GET'])
+    @app.route("/lockscreen.html", methods=['GET'])
+    def lock():
+        return render_template("lockscreen.html")
+
     @app.errorhandler(403)
     def page_not_found(error):
         return render_template('error.html',error="403_FORBIDDEN_FORM_ERROR"), 403
@@ -321,7 +328,7 @@ class _WebBasic(object):
         model = """
             <div class="container">
                 <!-- Central Modal Medium Warning -->
-                <div class="modal fade" id="modalDoubleWarning" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+                <div class="modal fade" id="modalDoubleWarning"
                     aria-hidden="true">
                     <div class="modal-dialog modal-notify modal-warning modal-lg" role="document">
                         <!--Content-->

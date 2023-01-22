@@ -3,6 +3,14 @@
     "port" : 8000,
     "debug" : true,
     "threaded" : true,
+    "location" : {
+        "lat" : "30",
+        "lon" : "120",
+        "elevation" : "10",
+        "city" : "Hangzhou",
+        "name" : "Test",
+        "mode" : "demo"
+    },
     "ws" : {
         "host" : "0.0.0.0",
         "port" : 5000,

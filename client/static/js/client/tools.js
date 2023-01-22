@@ -209,161 +209,164 @@ $(() => {
     })
 });
 
+function LoadStarInfomation() {
+    $.ajax({
+        url: '/tools/api/starinfo',
+        type: 'GET',
+        async: true,
+        processData: false,
+        contentType: "application/json",
+        success: function (data) {
+            if (!data.error) {
+                $("#polaris_next_transit").html(data.polaris_next_transit);
+                $("#polaris_alt").html(data.polaris_alt);
+                $("#moon_phase").html(data.moon_phase + " (" + data.moon_light + "%)");
+                $("#moon_rise").html(data.moon_rise);
+                $("#moon_transit").html(data.moon_transit);
+                $("#moon_set").html(data.moon_set);
+                $("#moon_az").html(data.moon_az);
+                $("#moon_alt").html(data.moon_alt);
+                $("#moon_ra").html(data.moon_ra);
+                $("#moon_dec").html(data.moon_dec);
+                $(".moon_new").html(data.moon_new);
+                $("#moon_full").html(data.moon_full);
+                $("#sun_at_start").html(data.sun_at_start);
+                $("#sun_ct_start").html(data.sun_ct_start);
+                $("#sun_rise").html(data.sun_rise);
+                $("#sun_transit").html(data.sun_transit);
+                $("#sun_set").html(data.sun_set);
+                $("#sun_ct_end").html(data.sun_ct_end);
+                $("#sun_at_end").html(data.sun_at_end);
+                $("#sun_az").html(data.sun_az);
+                $("#sun_alt").html(data.sun_alt);
+                $("#sun_ra").html(data.sun_ra);
+                $("#sun_dec").html(data.sun_dec);
+                $("#sun_equinox").html(data.sun_equinox);
+                $(".sun_solstice").html(data.sun_solstice);
+                $("#mercury_rise").html(data.mercury_rise);
+                $("#mercury_transit").html(data.mercury_transit);
+                $("#mercury_set").html(data.mercury_set);
+                $("#mercury_az").html(data.mercury_az);
+                $("#mercury_alt").html(data.mercury_alt);
+                $("#venus_rise").html(data.venus_rise);
+                $("#venus_transit").html(data.venus_transit);
+                $("#venus_set").html(data.venus_set);
+                $("#venus_az").html(data.venus_az);
+                $("#venus_alt").html(data.venus_alt);
+                $("#mars_rise").html(data.mars_rise);
+                $("#mars_transit").html(data.mars_transit);
+                $("#mars_set").html(data.mars_set);
+                $("#mars_az").html(data.mars_az);
+                $("#mars_alt").html(data.mars_alt);
+                $("#jupiter_rise").html(data.jupiter_rise);
+                $("#jupiter_transit").html(data.jupiter_transit);
+                $("#jupiter_set").html(data.jupiter_set);
+                $("#jupiter_az").html(data.jupiter_az);
+                $("#jupiter_alt").html(data.jupiter_alt);
+                $("#saturn_rise").html(data.saturn_rise);
+                $("#saturn_transit").html(data.saturn_transit);
+                $("#saturn_set").html(data.saturn_set);
+                $("#saturn_az").html(data.saturn_az);
+                $("#saturn_alt").html(data.saturn_alt);
+                $("#uranus_rise").html(data.uranus_rise);
+                $("#uranus_transit").html(data.uranus_transit);
+                $("#uranus_set").html(data.uranus_set);
+                $("#uranus_az").html(data.uranus_az);
+                $("#uranus_alt").html(data.uranus_alt);
+                $("#neptune_rise").html(data.neptune_rise);
+                $("#neptune_transit").html(data.neptune_transit);
+                $("#neptune_set").html(data.neptune_set);
+                $("#neptune_az").html(data.neptune_az);
+                $("#neptune_alt").html(data.neptune_alt);
 
-function LoadMap() {
-    document.getElementById("map").firstChild.data = "";
+                var pha = data.polaris_hour_angle;
+                pha_angle = 360 + pha * -1;
+                pha_angle -= 180;
+                var rotation = "rotate(" + pha_angle + "deg)";
+                $("#polaris_marker").css("-ms-transform", rotation);
+                $("#polaris_marker").css("-webkit-transform", rotation);
+                $("#polaris_marker").css("transform", rotation);
 
-    /* Set default to Warsaw, Poland */
-    var lon = 30;
-    var lat = 120;
+                var pha = data.polaris_hour_angle;
+                var phaH = String(parseInt(pha / 15));
+                var phaMtmp = (pha / 15 - phaH) * 60;
+                var phaM = String(parseInt(phaMtmp));
+                var phaS = String(parseInt((phaMtmp - phaM) * 60));
+                $("#pha").html(phaH.padStart(2, '0') + ":" + phaM.padStart(2, '0') + ":" + phaS.padStart(2, '0'));
 
-    map = new ol.Map({
-        target: "map",
-        layers: [
-            new ol.layer.Tile({
-                source: new ol.source.OSM()
-            })
-        ],
-        view: new ol.View({
-            center: ol.proj.fromLonLat([lon, lat]),
-            zoom: 4
-        })
-    });
-
-    var center = new ol.geom.Point(
-        ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857')
-    );
-
-    iconFeature = new ol.Feature({
-        geometry: center
-    });
-
-    var iconStyle = new ol.style.Style({
-        image: new ol.style.Icon({
-            anchor: [0.5, 1.0],
-            anchorXUnits: 'fraction',
-            anchorYUnits: 'fraction',
-            src: 'assets/img/marker.png'
-        })
-    });
-
-    iconFeature.setStyle(iconStyle);
-
-    var vectorSource = new ol.source.Vector({
-        features: [iconFeature]
-    });
-
-    var vectorLayer = new ol.layer.Vector({
-        source: vectorSource
-    });
-
-    map.addLayer(vectorLayer);
-}
-
-function UpdateMapPos(lon, lat) {
-    iconFeature.setGeometry(new ol.geom.Point(ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857')));
-    map.getView().animate({
-        center: ol.proj.fromLonLat([lon, lat]),
-        duration: 1000
-    });
-}
-
-$(document).ready(function () {
-    LoadMap();
-    var url = location.protocol + '//' + location.hostname + (location.port ? ':' + location.port : '');
-    
-    var socket = io(url);
-    console.log(url)
-    socket.on('connect', function() {
-    });
-    socket.on('gpspanel', function (gps) {
-        $("#gpstime").html(gps.gpstime);
-        $("#latitude").html(gps.latitude);
-        $("#longitude").html(gps.longitude);
-        $("#altitude").html(gps.altitude);
-        $("#mode").html(gps.mode);
-        $("#hdop").html(gps.hdop);
-        $("#vdop").html(gps.vdop);
-
-        if (gps.gpstime) {
-            var d = new Date(gps.gpstime);
-            var date = d.getUTCFullYear() + "-" + ("0" + (d.getUTCMonth() + 1)).substr(-2) + "-" + ("0" + d.getUTCDate()).substr(-2) + "T" + ("0" + d.getUTCHours()).substr(-2) + ":" + ("0" + d.getUTCMinutes()).substr(-2) + ":" + ("0" + d.getUTCSeconds()).substr(-2);
-            $("#gtime").html(date);
-        }
-
-        if (gps.latitude && gps.longitude) {
-            var lat = gps.latitude;
-            var lon = gps.longitude;
-            var lat_sign, lon_sign;
-
-            UpdateMapPos(lon, lat);
-
-            if (lat < 0) {
-                lat_sign = '-';
-            } else {
-                lat_sign = '';
-            }
-
-            if (lon < 0) {
-                lon_sign = '-';
-            } else {
-                lon_sign = '';
-            }
-
-            lat = Math.abs(lat);
-            lon = Math.abs(lon);
-
-            latdeg = parseInt(lat);
-            latmin = parseInt((lat - latdeg) * 3600 / 60);
-            latsec = ((lat - latdeg - latmin / 60) * 3600).toFixed(4);
-            londeg = parseInt(lon);
-            lonmin = parseInt((lon - londeg) * 3600 / 60);
-            lonsec = ((lon - londeg - lonmin / 60) * 3600).toFixed(4);
-            latrad = lat_sign + latdeg + ":" + ("0" + latmin).substr(-2) + ":" + ("0" + latsec).substr(-7);
-            lonrad = lon_sign + londeg + ":" + ("0" + lonmin).substr(-2) + ":" + ("0" + lonsec).substr(-7);
-            $("#lat").html(latrad);
-            $("#lon").html(lonrad);
-        }
-
-        if (gps.sschart) {
-            $("#sschart").attr("src", "data:image/png;base64," + gps.sschart);
-        }
-
-        if (gps.skymap) {
-            $("#skymap").attr("src", "data:image/png;base64," + gps.skymap);
-        }
-
-        if (gps.satellites) {
-            var satellites = "<table><tr><th colspan=5 align=left><h2>Visible Satellites<h2></th></tr><tr><th>PRN</th><th>Elevation</th><th>Azimuth</th><th>SS</th><th>Used</th></tr>";
-            var used;
-            for (const sat in gps.satellites) {
-                if (gps.satellites[sat]['used']) {
-                    used = 'Y';
+                if (parseFloat(data.mercury_alt) > 25) {
+                    $("#mercury").css("color", "#99cc00");
+                } else if (parseFloat(data.mercury_alt) > 0) {
+                    $("#mercury").css("color", "#ff9900");
                 } else {
-                    used = 'N';
+                    $("#mercury").css("color", "#fff");
                 }
-                satellites = satellites + "<tr align=right><td>" + gps.satellites[sat]['PRN'] + "</td><td>" + gps.satellites[sat]['el'] + "</td><td>" + gps.satellites[sat]['az'] + "</td><td>" + gps.satellites[sat]['ss'] + "</td><td>" + used + "</td></tr>";
-            }
-            satellites = satellites + "</table>";
 
-            $("#sats").html(gps.satellites.length);
-            $("#gpssats").html(satellites);
-        }
+                if (parseFloat(data.venus_alt) > 25) {
+                    $("#venus").css("color", "#99cc00");
+                } else if (parseFloat(data.venus_alt) > 0) {
+                    $("#venus").css("color", "#ff9900");
+                } else {
+                    $("#venus").css("color", "#fff");
+                }
 
-        if (typeof (gps.mode) == 'number') {
-            if (gps.mode == 3) {
-                $("#gpsfix").html('3D');
-                $("#gpsfix").removeClass("blink");
-                $("#gpsfix_obtained").addClass("gpsfix_obtained");
-            } else if (gps.mode == 2) {
-                $("#gpsfix").html('2D');
-                $("#gpsfix").removeClass("blink");
-                $("#gpsfix_obtained").addClass("gpsfix_obtained");
-            } else {
-                $("#gpsfix").html('waiting...');
-                $("#gpsfix").addClass("blink");
-                $("#gpsfix_obtained").removeClass("gpsfix_obtained");
+                if (parseFloat(data.mars_alt) > 25) {
+                    $("#mars").css("color", "#99cc00");
+                } else if (parseFloat(data.mars_alt) > 0) {
+                    $("#mars").css("color", "#ff9900");
+                } else {
+                    $("#mars").css("color", "#fff");
+                }
+
+                if (parseFloat(data.jupiter_alt) > 25) {
+                    $("#jupiter").css("color", "#99cc00");
+                } else if (parseFloat(data.jupiter_alt) > 0) {
+                    $("#jupiter").css("color", "#ff9900");
+                } else {
+                    $("#jupiter").css("color", "#fff");
+                }
+
+                if (parseFloat(data.saturn_alt) > 25) {
+                    $("#saturn").css("color", "#99cc00");
+                } else if (parseFloat(data.saturn_alt) > 0) {
+                    $("#saturn").css("color", "#ff9900");
+                } else {
+                    $("#saturn").css("color", "#fff");
+                }
+
+                if (parseFloat(data.uranus_alt) > 25) {
+                    $("#uranus").css("color", "#99cc00");
+                } else if (parseFloat(data.uranus_alt) > 0) {
+                    $("#uranus").css("color", "#ff9900");
+                } else {
+                    $("#uranus").css("color", "#fff");
+                }
+
+                if (parseFloat(data.neptune_alt) > 25) {
+                    $("#neptune").css("color", "#99cc00");
+                } else if (parseFloat(data.neptune_alt) > 0) {
+                    $("#neptune").css("color", "#ff9900");
+                } else {
+                    $("#neptune").css("color", "#fff");
+                }
+
+                var nm = new Date(data.moon_new);
+                var fm = new Date(data.moon_full);
+                if (nm < fm) {
+                    $("#new_moon_first").css("display", "");
+                    $("#new_moon_second").css("display", "none");
+                } else {
+                    $("#new_moon_first").css("display", "none");
+                    $("#new_moon_second").css("display", "");
+                };
             }
+            else {
+                onError(data.error);
+            }
+        },
+        error: function () {
+            onError("Failed to send request to server");
         }
-    });
-});
+    })
+}
+LoadStarInfomation()
