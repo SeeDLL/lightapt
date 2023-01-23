@@ -2,7 +2,7 @@
 
 """
 
-Copyright(c) 2022 Max Qian  <astroair.cn>
+Copyright(c) 2022-2023 Max Qian  <lightapt.com>
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public
@@ -19,7 +19,6 @@ Boston, MA 02110-1301, USA.
 """
 
 # System Library
-import datetime
 from json import JSONDecodeError, dumps
 from secrets import randbelow
 import threading
@@ -31,7 +30,6 @@ from time import sleep
 import server.config as c
 
 from utils.i18n import _
-from utils.utility import switch
 from utils.lightlog import lightlog
 logger = lightlog(__name__)
 
@@ -195,13 +193,13 @@ class WsTelescopeInterface(object):
         if _type in ["indi","ascom"]:
             # Connect to ASCOM telescope , the difference between INDI is the devie_number
             if _type == "ascom":    
-                from server.driver.telescope.ascom import AscomTelescopeAPI as ascom_telescope
+                from server.api.ascom.telescope import AscomTelescopeAPI as ascom_telescope
                 self.device = ascom_telescope()
                 param["device_number"] = 0
             # Connect to INDI telescope , the name of the device is needed
             elif _type == "indi":
-                from server.driver.telescope.indi import INDITelescopeAPI as indi_telescope
-                self.device = indi_telescope()
+                """from server.driver.telescope.indi import INDITelescopeAPI as indi_telescope
+                self.device = indi_telescope()"""
                 param["name"] = _name
             # Trying to connect the telescope
             res = self.device.connect(params=param)

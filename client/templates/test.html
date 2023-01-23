@@ -1,179 +1,39 @@
-<!--
-
-   Copyright(c) 2022-2023 Max Qian  <lightapt.com>
-
-   This program is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
-   
-   This program is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
-   
-   You should have received a copy of the GNU General Public License
-   along with this program; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-   MA 02110-1301, USA.
-   
--->
-
 <!DOCTYPE html>
-<html lang="en">
-<!-- HTML Head-->
+
+<html>
 
 <head>
-
     {{ basic.load_basic_meta() }}
 
-    <title>LightAPT FAQ</title>
+    <title></title>
 
     {{ basic.icon() }}
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons">
-    <!-- overlayScrollbars -->
-    <link rel="stylesheet" href="/static/css/plugins/OverlayScrollbars.min.css">
-    <!-- Loading animation -->
-    <link rel="stylesheet" href="/static/css/client/loading.css">
-    <!-- Quasar -->
-    <link rel="stylesheet" href="/static/css/plugins/quasar.prod.css">
+    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
+
+    <link rel="stylesheet" href="/static/css/bootstrap5/mdb.dark.min.css">
 </head>
-<!-- Body Part -->
 
-<body class="dark-mode" data-panel-auto-height-mode="height">
-
-    {{ basic.loading() }}
-
-    {{ raw }}
-
-    <div class="wrapper">
-        <!-- Main content -->
-        <section class="content" data-widget="iframe">
+<body>
+    <div class="container">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg">
+            <!-- Container wrapper -->
             <div class="container-fluid">
+                
 
-                <div id="q-app">
-                    <div class="q-pa-md">
-                        <q-ajax-bar ref="bar" position="bottom" color="accent" size="10px" skip-hijack> </q-ajax-bar>
-
-                        <q-btn color="primary" label="Trigger" @click="trigger"></q-btn>
-                    </div>
-
-                    <div class="q-pa-md q-gutter-sm">
-                        <q-bar dense class="bg-teal text-white">
-                            <q-icon class="fas fa-signal"> </q-icon>
-                            <div>mobi-net</div>
-                            <div>4G</div>
-                            <q-icon class="fas fa-wifi"> </q-icon>
-                            <q-space> </q-space>
-                            <q-icon name="near_me"> </q-icon>
-                            <div>100%</div>
-                            <q-icon class="fas fa-battery"> </q-icon>
-                        </q-bar>
-
-                    </div>
-                        <q-splitter v-model="splitterModel" style="height: 250px">
-
-                            <q-tabs v-model="tab" vertical class="text-teal">
-                                <q-tab name="mails" icon="mail" label="Mails"></q-tab>
-                                <q-tab name="alarms" icon="alarm" label="Alarms"> </q-tab>
-                                <q-tab name="movies" icon="movie" label="Movies"></q-tab>
-                            </q-tabs>
-
-                            <q-tab-panels v-model="tab" animated swipeable vertical transition-prev="jump-up"
-                                transition-next="jump-up">
-                                <q-tab-panel name="mails">
-                                    <div class="text-h4 q-mb-md">Mails</div>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                </q-tab-panel>
-
-                                <q-tab-panel name="alarms">
-                                    <div class="text-h4 q-mb-md">Alarms</div>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                </q-tab-panel>
-
-                                <q-tab-panel name="movies">
-                                    <div class="text-h4 q-mb-md">Movies</div>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                    <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis praesentium
-                                        cumque magnam odio iure quidem, quod illum numquam possimus obcaecati
-                                        commodi minima assumenda consectetur culpa fuga nulla ullam. In, libero.</p>
-                                </q-tab-panel>
-                            </q-tab-panels>
-
-                        </q-splitter>
-                    </div>
-
+                <!-- Right elements -->
+                <div class="d-flex align-items-center">
+                    <button type="button" class="btn btn-primary float-sm-right">Button</button>
+                </div>
+                <!-- Right elements -->
             </div>
-        </section>
+            <!-- Container wrapper -->
+        </nav>
+        <!-- Navbar -->
     </div>
 
-    {{ endraw }}
-
-    {{ basic.load_basic_js() }}
-
-    <!-- overlayScrollbars -->
-    <script src="/static/js/jquery/jquery.overlayScrollbars.min.js"></script>
-    <script>
-        $(function () {
-            $('body').overlayScrollbars({});
-        });
-    </script>
-    <script src="/static/js/plugins/vue3.global.min.js"></script>
-    <script src="/static/js/plugins/quasar.umd.prod.js"></script>
-
-    <script>
-        /*
-          Example kicking off the UI. Obviously, adapt this to your specific needs.
-          Assumes you have a <div id="q-app"></div> in your <body> above
-         */
-        const app = Vue.createApp({
-            setup() {
-                const bar = Vue.ref(null)
-
-                // we manually trigger it (this is not needed if we
-                // don't skip Ajax calls hijacking)
-                function trigger() {
-                    const barRef = bar.value
-                    barRef.start()
-
-                    setTimeout(() => {
-                        const barRef = bar.value
-                        if (barRef) {
-                            barRef.stop()
-                        }
-                    }, Math.random() * 3000 + 1000)
-                }
-                return {
-
-                    bar,
-                    trigger,
-                    tab: Vue.ref('mails'),
-                    splitterModel: Vue.ref(20)
-                }
-            }
-        })
-
-        app.use(Quasar)
-        app.mount('#q-app')
-
-    </script>
-
+    <script src="/static/js/bootstrap5/mdb.min.js"></script>
 
 </body>
 

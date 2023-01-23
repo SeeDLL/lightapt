@@ -74,6 +74,7 @@
     width: 100%;
 }
 
+#logDivTelescope,
 #logDivCamera {
     background: #343a40;
     color: gray;

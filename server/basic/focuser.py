@@ -36,10 +36,11 @@ class BasicFocuserInfo(object):
     _api_version : str # API version only ASCOM and INDI
 
     _current_position : int
-    _step_size : int
+    _step_size : int # current step size
     _temperature : float
 
-    _max_steps : int
+    _max_steps : int # Focuser true limit for steps
+    _max_increment : int # Max steps per move operation
     
     _is_connected = False
     _is_moving = False
@@ -74,6 +75,7 @@ class BasicFocuserInfo(object):
             },
             "properties" : {
                 "max_steps" : self._max_steps,
+                "max_increment" : self._max_increment
             },
             "network" : {
                 "ipaddress" : self._ipaddress,
@@ -102,51 +104,44 @@ class BasicFocuserAPI(BasicDeviceAPI):
         """
             Focuser move given step | 电调移动指定步数
             Args :
-                params : {
-                    "step" : int
-                }
-            Returns : {
-                "status" : int,
-                "message" : str,
-                "params" : None
-            }
+                params : 
+                    step : int
+            Returns : 
+                status : int,
+                message : str,
+                params : None
         """
 
     def move_to(self , params : dict) -> dict:
         """
             Move to target position | 移动至指定位置
             Args :
-                params : {
-                    "position" : int
-                }
-            Returns : {
-                "status" : int,
-                "message" : str,
-                "params" : None
-            }
+                params : 
+                    position : int
+            Returns : 
+                status : int,
+                message : str,
+                params : None
         """
 
     def abort_movement(self) -> dict:
         """
             Abort movement | 停止
-            Returns : {
-                "status" : int,
-                "message" : str,
-                "params" : None
-            }
+            Returns : 
+                status : int,
+                message : str,
+                params : None
         """
 
     def get_temperature(self) -> dict:
         """
             Get focuser temperature | 获取电调温度
             Args : None
-            Returns : {
-                "status" : int,
-                "message" : str,
-                "params" : {
-                    "temperature" : float
-                }
-            }
+            Returns : 
+                status : int,
+                message : str,
+                params : 
+                    temperature : float
             NOTE : This function needs focuser support
         """
 
@@ -154,11 +149,9 @@ class BasicFocuserAPI(BasicDeviceAPI):
         """
             Get focuser movement status
             Args : None
-            Returns : {
-                "status" : int,
-                "message" : str,
-                "params" : {
-                    "status" : int
-                }
-            }
+            Returns : 
+                status : int,
+                message : str,
+                params : 
+                    status : int
         """

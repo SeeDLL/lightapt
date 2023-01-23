@@ -2,7 +2,7 @@
 
 """
 
-Copyright(c) 2022-2023 Max Qian  <astroair.cn>
+Copyright(c) 2022-2023 Max Qian  <lightapt.com>
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Library General Public
@@ -283,6 +283,8 @@ create_web_ephem(app)
 
 # If the virtual gps is available
 if c.config["virtualgps"]["enable"]:
+    import eventlet
+    eventlet.monkey_patch()
     # I think flask socketio had some strange bug which will stop the server update and response the request
     from flask_socketio import SocketIO
     has_socketio = True

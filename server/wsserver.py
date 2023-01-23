@@ -431,7 +431,7 @@ class ws_server(object):
                         break
                     if _case("RemoteSetConfiguration"):
                         break
-                    logger.loge(_("Unknown telescope event received from remote client"))
+                    logger.loge(_("Unknown focuser event received from remote client"))
                     break
                 break
             if case("filterwheel"):
@@ -446,7 +446,17 @@ class ws_server(object):
                         break
                     if _case("RemotePolling"):
                         break
-                    logger.loge(_("Unknown telescope event received from remote client"))
+                    if _case("RemoteSlewTo"):
+                        break
+                    if _case("RemoteGetFilterList"):
+                        break
+                    if _case("RemoteGetPosition"):
+                        break
+                    if _case("RemoteGetConfiguration"):
+                        break
+                    if _case("RemoteSetConfiguration"):
+                        break
+                    logger.loge(_("Unknown filterwheel event received from remote client"))
                     break
                 break
             if case("server"):

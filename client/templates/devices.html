@@ -23,7 +23,7 @@
 <html lang="en">
 
 <head>
-    
+
     {{ basic.load_basic_meta() }}
 
     <title>设备</title>
@@ -40,13 +40,18 @@
     <link rel="stylesheet" href="/static/css/client/loading.css">
     <!-- Device -->
     <link rel="stylesheet" href="/static/css/client/device.css">
+    <!-- Quasar -->
+    <link rel="stylesheet" href="/static/css/plugins/quasar.prod.css">
+
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900|Material+Icons" rel="stylesheet"
+        type="text/css">
 
     {{ basic.load_basic_css() }}
-    
+
 </head>
 
 <body style="height: auto;" class="dark-mode">
-    
+
     {{ basic.loading() }}
 
     <div class="wrapper">
@@ -398,14 +403,14 @@
                                                                         <ul class="list-group bg-dark">
                                                                             <li
                                                                                 class="text-sm list-group-item d-flex align-items-center justify-content-between">
-                                                                                <span id="statGenText"
+                                                                                <span id="statCameraGenText"
                                                                                     class="text-muted info-data-item w-auto text-sm">
                                                                                     <i class="fas fa-signal-bars"></i>
                                                                                     状态
                                                                                 </span>
                                                                                 <span
                                                                                     class="environmentField info-data-item text-right text-sm"
-                                                                                    id="generalStatusText"></span>
+                                                                                    id="generalCameraStatusText"></span>
                                                                             </li>
                                                                             <li
                                                                                 class="text-sm list-group-item d-flex align-items-center justify-content-between">
@@ -417,7 +422,7 @@
                                                                                 </span>
                                                                                 <span
                                                                                     class="environmentField info-data-item text-right text-sm"
-                                                                                    id="generalActionText"></span>
+                                                                                    id="generalCameraActionText"></span>
                                                                             </li>
                                                                             <li
                                                                                 class="text-sm list-group-item d-flex align-items-center justify-content-between">
@@ -429,7 +434,7 @@
                                                                                 </span>
                                                                                 <span
                                                                                     class="environmentField info-data-item text-right text-sm"
-                                                                                    id="generalLogText"></span>
+                                                                                    id="generalCameraLogText"></span>
                                                                             </li>
                                                                             <li
                                                                                 class="text-sm list-group-item d-flex align-items-center justify-content-between">
@@ -440,7 +445,7 @@
                                                                                 </span>
                                                                                 <span
                                                                                     class="environmentField info-data-item text-right text-sm"
-                                                                                    id="remoteCommandText"></span>
+                                                                                    id="remoteCameraCommandText"></span>
                                                                             </li>
                                                                             <li
                                                                                 class="text-sm list-group-item d-flex align-items-center justify-content-between">
@@ -451,7 +456,7 @@
                                                                                 </span>
                                                                                 <span
                                                                                     class="environmentField info-data-item text-right text-sm"
-                                                                                    id="remotePercentText"></span>
+                                                                                    id="remoteCameraPercentText"></span>
                                                                             </li>
                                                                         </ul>
                                                                     </div>
@@ -1010,18 +1015,602 @@
                                             <div class="tab-pane text-left fade active show" id="telescope-info-status"
                                                 role="tabpanel" aria-labelledby="telescope-info-status-tab">
 
+                                                <div class="row">
+                                                    <!-- Camera Status -->
+                                                    <div class="col-md-6">
+                                                        <div class="card card-default card-primary">
+                                                            <div class="card-header">
+                                                                <div class="card-title">
+                                                                    <i class="fas fa-info"></i>
+                                                                    赤道仪状态
+                                                                </div>
+                                                                <div class="card-tools">
+                                                                    <button type="button" class="btn btn-tool btn-sm"
+                                                                        data-card-widget="collapse">
+                                                                        <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /.card-header -->
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col-sm-12">
+
+                                                                        <ul class="list-group bg-dark">
+                                                                            <li
+                                                                                class="text-sm list-group-item d-flex align-items-center justify-content-between">
+                                                                                <span id="statCameraGenText"
+                                                                                    class="text-muted info-data-item w-auto text-sm">
+                                                                                    <i class="fas fa-signal-bars"></i>
+                                                                                    状态
+                                                                                </span>
+                                                                                <span
+                                                                                    class="environmentField info-data-item text-right text-sm"
+                                                                                    id="generalTelescopeStatusText"></span>
+                                                                            </li>
+                                                                            <li
+                                                                                class="text-sm list-group-item d-flex align-items-center justify-content-between">
+                                                                                <span id="remoteActionText"
+                                                                                    class="text-muted info-data-item w-auto text-sm">
+                                                                                    <i
+                                                                                        class="fa-solid fa-barcode-scan"></i>
+                                                                                    动作
+                                                                                </span>
+                                                                                <span
+                                                                                    class="environmentField info-data-item text-right text-sm"
+                                                                                    id="generalTelescopeActionText"></span>
+                                                                            </li>
+                                                                            <li
+                                                                                class="text-sm list-group-item d-flex align-items-center justify-content-between">
+                                                                                <span id="remoteActionText"
+                                                                                    class="text-muted info-data-item w-auto text-sm">
+                                                                                    <i
+                                                                                        class="fa-solid fa-paper-plane"></i>
+                                                                                    日志
+                                                                                </span>
+                                                                                <span
+                                                                                    class="environmentField info-data-item text-right text-sm"
+                                                                                    id="generalTelescopeLogText"></span>
+                                                                            </li>
+                                                                            <li
+                                                                                class="text-sm list-group-item d-flex align-items-center justify-content-between">
+                                                                                <span id="remoteCommand"
+                                                                                    class="text-muted info-data-item w-auto text-sm">
+                                                                                    <i class="fas fa-command"></i>
+                                                                                    指令
+                                                                                </span>
+                                                                                <span
+                                                                                    class="environmentField info-data-item text-right text-sm"
+                                                                                    id="remoteTelescopeCommandText"></span>
+                                                                            </li>
+                                                                            <li
+                                                                                class="text-sm list-group-item d-flex align-items-center justify-content-between">
+                                                                                <span id="remotePercent"
+                                                                                    class="text-muted info-data-item w-auto text-sm">
+                                                                                    <i class="fas fa-percent"></i>
+                                                                                    进度
+                                                                                </span>
+                                                                                <span
+                                                                                    class="environmentField info-data-item text-right text-sm"
+                                                                                    id="remoteTelescopePercentText"></span>
+                                                                            </li>
+                                                                        </ul>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- /. Camera Status -->
+                                                    <!-- Camera Log -->
+                                                    <div class="col-md-6">
+
+                                                        <div class="card card-secondary">
+                                                            <div class="card-header">
+                                                                <h3 class="card-title">
+                                                                    <i class="fas fa-clipboard-list"></i>
+                                                                    赤道仪日志
+                                                                </h3>
+                                                                <div class="card-tools">
+                                                                    <button type="button" class="btn btn-tool btn-sm"
+                                                                        id="clear_telescope_log">
+                                                                        <i class="fas fa-paint-brush-alt"></i>
+                                                                    </button>
+                                                                    <button type="button" class="btn btn-tool btn-sm"
+                                                                        data-card-widget="collapse">
+                                                                        <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <!-- /.card-tools -->
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div id="logDivTelescope" class="p-1 text-left"></div>
+                                                            </div>
+                                                        </div>
+
+                                                    </div>
+                                                    <!-- /. Camera Log-->
+                                                </div>
+
                                             </div>
                                             <!-- /. Telescope Info -->
                                             <!-- Telescope Control -->
-                                            <div class="tab-pane text-left fade" id="telescope-control-status"
+                                            <div class="tab-pane text-left fade" id="telescope-info-control"
                                                 role="tabpanel" aria-labelledby="telescope-info-control-tab">
 
+                                                <div class="row">
+
+                                                    <!-- mount Control -->
+                                                    <div class="col-md-6">
+                                                        <div class="card card-default card-primary">
+                                                            <div class="card-header">
+                                                                <div class="card-title">
+                                                                    <i class="fa-solid fa-earth"></i>
+                                                                    赤道仪控制
+                                                                </div>
+                                                                <div class="card-tools">
+                                                                    <button type="button" class="btn btn-tool btn-sm"
+                                                                        data-card-widget="collapse">
+                                                                        <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /.card-header -->
+                                                            <div class="card-body">
+                                                                <!-- Goto -->
+                                                                <div class="card">
+                                                                    <div class="card-header">
+                                                                        <h3 class="card-title">
+                                                                            <i class="fa-solid fa-telescope"></i>
+                                                                            Goto
+                                                                        </h3>
+                                                                        <div class="card-tools">
+                                                                            <button type="button"
+                                                                                class="btn btn-tool btn-sm"
+                                                                                data-card-widget="collapse">
+                                                                                <i class="fas fa-minus"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                        <!-- /.card-tools -->
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="input-group d-flex mt-0">
+                                                                            <div class="col">
+                                                                                <input type="text" id="ra_search"
+                                                                                    class="form-control form-control-sm text-white text-center bg-dark mr-lg-1"
+                                                                                    placeholder="RA" aria-label="RA"
+                                                                                    aria-describedby="RA">
+                                                                                <small
+                                                                                    class="p-0 text-muted text-small">RA
+                                                                                    J2000</small>
+                                                                            </div>
+                                                                            <div class="col mx-1">
+                                                                                <input type="text" id="dec_search"
+                                                                                    class="form-control form-control-sm text-white text-center bg-dark mr-lg-1"
+                                                                                    placeholder="DEC" aria-label="DEC"
+                                                                                    aria-describedby="DEC">
+                                                                                <small
+                                                                                    class="p-0 text-muted text-small">DEC
+                                                                                    J2000</small>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="input-group">
+                                                                            <div class="col">
+                                                                                <button id="goto"
+                                                                                    class="btn btn-sm btn-outline-primary btn-block"
+                                                                                    type="button">
+                                                                                    <i class="fas fa-crosshairs"></i>
+                                                                                    Goto
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="col">
+                                                                                <button id="abort_goto"
+                                                                                    class="btn btn-sm btn-outline-danger btn-block"
+                                                                                    type="button">
+                                                                                    <i class="fas fa-cancel"></i>
+                                                                                    停止
+                                                                                </button>
+                                                                            </div>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <!-- Setting -->
+
+                                                                <div class="card">
+                                                                    <div class="card-header">
+                                                                        <h3 class="card-title">
+                                                                            <i class="fa-solid fa-search"></i>
+                                                                            搜索
+                                                                        </h3>
+                                                                        <div class="card-tools">
+                                                                            <button type="button"
+                                                                                class="btn btn-tool btn-sm"
+                                                                                data-card-widget="collapse">
+                                                                                <i class="fas fa-minus"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                        <!-- /.card-tools -->
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group">
+                                                                                    <input type="text"
+                                                                                        class="form-control form-control-sm text-center text-white border-sx-blueVoy bg-dark mr-lg-1 searchField"
+                                                                                        id="nameToSearch"
+                                                                                        aria-describedby="Name" value=""
+                                                                                        placeholder="输入目标名称或编号">
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group mt-2">
+                                                                                    <div class="col">
+                                                                                        <button id="searchLocalBtn"
+                                                                                            class="btn btn-sm btn-outline-info btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-search"></i>
+                                                                                            本地搜索
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="searchOnlineBtn"
+                                                                                            class="btn btn-sm btn-outline-warning btn-block"
+                                                                                            type="button">
+                                                                                            <i class="fas fa-globe"></i>
+                                                                                            在线搜索
+                                                                                        </button>
+                                                                                    </div>
+
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row pt-2">
+                                                                            <div class="col-md-12">
+                                                                                <div class="col">
+                                                                                    <button id="suycBtn"
+                                                                                        class="btn btn-sm btn-outline-success btn-block"
+                                                                                        type="button">
+                                                                                        <i class="fas fa-sync"></i>
+                                                                                        同步
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-footer text-muted text-center">
+                                                                <div class="status-item d-inline-flex">
+                                                                    <span id="lightapt">赤道仪控制</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- mount Control -->
+                                                    <div class="col-md-6">
+                                                        <div class="card card-default card-primary">
+                                                            <div class="card-header">
+                                                                <div class="card-title">
+                                                                    <i class="fa-solid fa-earth"></i>
+                                                                    赤道仪控制
+                                                                </div>
+                                                                <div class="card-tools">
+                                                                    <button type="button" class="btn btn-tool btn-sm"
+                                                                        data-card-widget="collapse">
+                                                                        <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /.card-header -->
+                                                            <div class="card-body">
+                                                                <!-- Goto Virtual Hand -->
+                                                                <div class="card">
+                                                                    <div class="card-header">
+                                                                        <h3 class="card-title">
+                                                                            <i
+                                                                                class="fa-solid fa-crosshairs-simple"></i>
+                                                                            Goto虚拟手柄
+                                                                        </h3>
+                                                                        <div class="card-tools">
+                                                                            <button type="button"
+                                                                                class="btn btn-tool btn-sm"
+                                                                                data-card-widget="collapse">
+                                                                                <i class="fas fa-minus"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                        <!-- /.card-tools -->
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group">
+                                                                                    <div class="col">
+                                                                                        <button id="goto_w_n"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-up-left"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="goto_n"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-up"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="goto_e_n"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-up-right"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group mt-3">
+                                                                                    <div class="col">
+                                                                                        <button id="goto_w"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-left"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="goto_stop"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-stop-circle"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="goto_e"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-right"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group mt-3">
+                                                                                    <div class="col">
+                                                                                        <button id="goto_w_s"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-down-left"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="goto_s"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-down"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="goto_e_s"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-arrow-down-right"></i>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12 mt-3">
+                                                                                <label for="goto_speed">GOTO速度</label>
+                                                                                <div class="input-group input-group-sm">
+                                                                                    <select
+                                                                                        class="browser-default custom-select custom-select-sm text-white border-sx-blue"
+                                                                                        id="goto_speed">
+                                                                                        <option value="1" selected="">1x
+                                                                                        </option>
+                                                                                        <option value="2">2x</option>
+                                                                                        <option value="4">4x</option>
+                                                                                        <option value="8">8x</option>
+                                                                                        <option value="16">16x</option>
+                                                                                        <option value="32">32x</option>
+                                                                                        <option value="64">64x</option>
+                                                                                        <option value="128">128x
+                                                                                        </option>
+                                                                                        <option value="256">256x
+                                                                                        </option>
+                                                                                    </select>
+                                                                                    <button id="track_mode_setting"
+                                                                                        type="button"
+                                                                                        class="btn btn-outline-info btn-sm">
+                                                                                        <i class="fas fa-gear"></i>
+                                                                                        设置
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="card">
+                                                                    <div class="card-header">
+                                                                        <h3 class="card-title">
+                                                                            <i class="fa-solid fa-joystick"></i>
+                                                                            控制选项
+                                                                        </h3>
+                                                                        <div class="card-tools">
+                                                                            <button type="button"
+                                                                                class="btn btn-tool btn-sm"
+                                                                                data-card-widget="collapse">
+                                                                                <i class="fas fa-minus"></i>
+                                                                            </button>
+                                                                        </div>
+                                                                        <!-- /.card-tools -->
+                                                                    </div>
+                                                                    <div class="card-body">
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group">
+                                                                                    <div class="col">
+                                                                                        <button id="trackBtn"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-camera-viewfinder"></i>
+                                                                                            跟踪
+                                                                                        </button>
+                                                                                    </div>
+
+                                                                                    <div class="col">
+                                                                                        <button id="unParkBtn"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-cancel"></i>
+                                                                                            停止跟踪
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row pt-2">
+                                                                            <div class="col-md-12">
+                                                                                <div class="col">
+                                                                                    <button id="homeBtn"
+                                                                                        class="btn btn-sm btn-primary btn-block"
+                                                                                        type="button">
+                                                                                        <i class="fas fa-home"></i>
+                                                                                        回家
+                                                                                    </button>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="row">
+                                                                            <div class="col-md-12">
+                                                                                <div class="input-group mt-2">
+                                                                                    <div class="col">
+                                                                                        <button id="parkBtn"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i
+                                                                                                class="fas fa-parking"></i>
+                                                                                            归位
+                                                                                        </button>
+                                                                                    </div>
+                                                                                    <div class="col">
+                                                                                        <button id="unParkBtn"
+                                                                                            class="btn btn-sm btn-primary btn-block"
+                                                                                            type="button">
+                                                                                            <i class="fas fa-stop"></i>
+                                                                                            归位解锁
+                                                                                        </button>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-footer text-muted text-center">
+                                                                <div class="status-item d-inline-flex">
+                                                                    <span id="lightapt">虚拟手柄</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                </div>
                                             </div>
                                             <!-- /. Telescope Control-->
                                             <!-- Telescope Settings -->
                                             <div class="tab-pane text-left fade" id="telescope-info-settings"
                                                 role="tabpanel" aria-labelledby="telescope-info-settings-tab">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="card">
+                                                            <div class="card-header">
+                                                                <h3 class="card-title">
+                                                                    <i class="fa-solid fa-gears"></i>
+                                                                    参数设置
+                                                                </h3>
+                                                                <div class="card-tools">
+                                                                    <button type="button" class="btn btn-tool btn-sm"
+                                                                        data-card-widget="collapse">
+                                                                        <i class="fas fa-minus"></i>
+                                                                    </button>
+                                                                </div>
+                                                                <!-- /.card-tools -->
+                                                            </div>
+                                                            <div class="card-body">
+                                                                <div class="row">
+                                                                    <div class="col-md-12">
+                                                                        <label for="track_mode">跟踪模式</label>
+                                                                        <div class="input-group input-group-sm">
+                                                                            <select
+                                                                                class="browser-default custom-select custom-select-sm text-white border-sx-blue"
+                                                                                id="ipPort">
+                                                                                <option value="0" selected="">恒星
+                                                                                </option>
+                                                                                <option value="1">太阳</option>
+                                                                                <option value="2">月球</option>
+                                                                                <option value="3">自定义</option>
+                                                                            </select>
+                                                                            <button id="track_mode_setting"
+                                                                                type="button"
+                                                                                class="btn btn-outline-info btn-sm">
+                                                                                <i class="fas fa-gear"></i>
+                                                                                设置
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col">
+                                                                        <label>赤经速率</label>
+                                                                        <select
+                                                                            class="form-control form-control-sm selectpicker show-tick"
+                                                                            data-live-search="true" id="RARate">
+                                                                            <option value="0" selected="">恒星</option>
+                                                                            <option value="1">太阳</option>
+                                                                            <option value="2">月球</option>
+                                                                            <option value="3">自定义</option>
+                                                                        </select>
 
+
+                                                                    </div>
+                                                                    <div class="col">
+                                                                        <label>赤纬速率</label>
+                                                                        <select
+                                                                            class="form-control form-control-sm selectpicker show-tick"
+                                                                            data-live-search="true" id="DECRate">
+                                                                            <option value="0" selected="">恒星</option>
+                                                                            <option value="1">太阳</option>
+                                                                            <option value="2">月球</option>
+                                                                            <option value="3">自定义</option>
+                                                                        </select>
+
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <!-- /. Telescope Settings -->
                                         </div>
@@ -1070,10 +1659,13 @@
                                         <div class="card card-indigo">
                                             <div class="card-header">
                                                 <div class="card-title">
-                                                    解析
+                                                    导星
                                                 </div>
                                             </div>
                                             <div class="card-body">
+
+
+
                                             </div>
                                         </div>
                                     </div>
@@ -1109,7 +1701,7 @@
                                                 <div id="logDiv" class="p-1 text-left"></div>
                                             </div>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                             </div>
@@ -1130,6 +1722,8 @@
 
     {{ basic.load_basic_js() }}
 
+    <!-- Jquery UI -->
+    <script src="/static/js/jquery/jquery-ui.min.js"></script>
     <!-- overlayScrollbars -->
     <script src="/static/js/jquery/jquery.overlayScrollbars.min.js"></script>
     <!-- Bootstrap select -->
@@ -1142,4 +1736,5 @@
     <script src="/static/js/plugins/viewer.min.js"></script>
     <!-- Device JS -->
     <script src="/static/js/client/devices.js"></script>
+
 </body>

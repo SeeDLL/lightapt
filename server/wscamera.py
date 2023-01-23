@@ -125,13 +125,13 @@ class WsCameraInterface():
         if _type in ["indi","ascom"]:
             # Connect to ASCOM camera , the difference between INDI is the devie_number
             if _type == "ascom":    
-                from server.driver.camera.ascom import AscomCameraAPI as ascom_camera
+                from server.api.ascom.camera import AscomCameraAPI as ascom_camera
                 self.device = ascom_camera()
                 param["device_number"] = 0
             # Connect to INDI camera , the name of the device is needed
             elif _type == "indi":
-                from server.driver.camera.indi import INDICameraAPI as indi_camera
-                self.device = indi_camera()
+                """from server.driver.camera.indi import INDICameraAPI as indi_camera
+                self.device = indi_camera()"""
                 param["name"] = _name
             # Trying to connect the camera
             res = self.device.connect(params=param)
