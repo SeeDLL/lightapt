@@ -1,3 +1,3 @@
 from .DebuggingWS import DebuggingWebSocket
 from .IndiClientWS import IndiClientWebSocket
-from .FIFO_connect_device import FIFODeviceStartStop
+from .FIFO_connect_device import FIFODeviceStartStop, FIFOGetAllDevice

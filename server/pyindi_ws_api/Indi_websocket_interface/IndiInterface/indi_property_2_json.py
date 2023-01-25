@@ -3,22 +3,28 @@ from .basic_indi_state_str import json_ISState, json_IPState
 
 
 def indi_property_2_json(indi_property):
-    ret_struct = {}
+    ret_struct = {
+        'name': indi_property.getName()
+    }
     if indi_property.getType() == PyIndi.INDI_TEXT:
         ret_struct['type'] = 'text'
-        for one_ in indi_property:
+        this_p = indi_property.getText()
+        for one_ in this_p:
             ret_struct[one_.name] = one_.text
     if indi_property.getType() == PyIndi.INDI_NUMBER:
         ret_struct['type'] = 'number'
-        for one_ in indi_property:
+        this_p = indi_property.getNumber()
+        for one_ in this_p:
             ret_struct[one_.name] = one_.value
     if indi_property.getType() == PyIndi.INDI_SWITCH:
         ret_struct['type'] = 'switch'
-        for one_ in indi_property:
+        this_p = indi_property.getSwitch()
+        for one_ in this_p:
             ret_struct[one_.name] = json_ISState(one_.s)
     if indi_property.getType() == PyIndi.INDI_LIGHT:
         ret_struct['type'] = 'light'
-        for one_ in indi_property:
+        this_p = indi_property.getLight()
+        for one_ in this_p:
             ret_struct[one_.name] = json_IPState(one_.s)
     return ret_struct
 

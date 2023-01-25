@@ -1,14 +1,15 @@
-import time
+from .indi_number_range_validation import check_number_range
 from .indi_base_device import IndiBaseDevice
 from PyIndi import BaseDevice
 from .indiClientDef import IndiClient
 import PyIndi
 from .basic_indi_state_str import *
-from .indi_switch_operation import turn_on_multiple_switch_by_index
-from .indi_property_2_json import indi_keyword_2_json
+from .indi_switch_operation import turn_on_multiple_switch_by_index, get_multiple_switch_info
+from .indi_number_range_validation import indi_number_single_get_value
 
-home_keyword = ["AT_HOME", "HomeS"]
 
+home_keyword = ["HOME", "HOME_INIT"]
+go_home_name_list = ['GoToHome', 'IEQ_GOTO_HOME', 'RETURN_HOME']
 
 class IndiTelescopeDevice(IndiBaseDevice):
     def __init__(self, indi_client: IndiClient, indi_device: BaseDevice = None):
@@ -69,29 +70,43 @@ class IndiTelescopeDevice(IndiBaseDevice):
         else:
             self.can_guide_speed=False
     
-    async def set_long_lat(self, long: float, lat: float, elev=0):
-        if long > 180 or long < -180:
+    async def set_long_lat(self, long: float, lat: float, elev=0, *args, **kwargs):
+        geo_coord = self.this_device.getNumber('GEOGRAPHIC_COORD')
+        if check_number_range(geo_coord, 1, long):
             raise ValueError('longitude not in range!')
-        if lat > 90 or long < -90:
+        if check_number_range(geo_coord, 0, lat):
             raise ValueError('latitude not in range!')
+        if check_number_range(geo_coord, 2, elev):
+            raise ValueError('evelation not in range!')
         self.longitude = long
         self.latitude = lat
         self.elevation = elev
-        geo_coord = self.this_device.getNumber('GEOGRAPHIC_COORD')
         geo_coord[0].value = lat  # latitude
         geo_coord[1].value = long  # longitude
         geo_coord[2].value = float(elev)  # elevation
         self.indi_client.sendNewNumber(geo_coord)
         return None
 
-    async def get_static_info(self):
+    async def get_static_info(self, *args, **kwargs):
         pass
     
-    async def get_set_params(self):
-        return indi_keyword_2_json(self.this_device, "MOUNT_TYPE", "ON_COORD_SET", "TELESCOPE_TRACK_MODE",
-                                   "TELESCOPE_TRACK_STATE", "GEOGRAPHIC_COORD")
+    async def get_set_params(self, *args, **kwargs):
+        ret_struct = {}
+        mount_type = self.this_device.getSwitch("MOUNT_TYPE")
+        ret_struct['mount_type'] = get_multiple_switch_info(mount_type)
+        on_coord_set = self.this_device.getSwitch("ON_COORD_SET")
+        ret_struct['on_coord_set'] = get_multiple_switch_info(on_coord_set)
+        track_mode = self.this_device.getSwitch("TELESCOPE_TRACK_MODE")
+        ret_struct['track_mode'] = get_multiple_switch_info(track_mode)
+        track_state = self.this_device.getSwitch("TELESCOPE_TRACK_STATE")
+        ret_struct['track_state'] = get_multiple_switch_info(track_state)
+        geo_coord = self.this_device.getNumber("GEOGRAPHIC_COORD")
+        ret_struct['longitude'] = indi_number_single_get_value(geo_coord[1])
+        ret_struct['latitude'] = indi_number_single_get_value(geo_coord[0])
+        ret_struct['elevation'] = indi_number_single_get_value(geo_coord[2])
+        return ret_struct
 
-    async def get_real_time_info(self):
+    async def get_real_time_info(self, *args, **kwargs):
         # return ra, dec, in_moving,
         equad_eod_coord = self.this_device.getNumber("EQUATORIAL_EOD_COORD")
         ra = equad_eod_coord[0].value
@@ -110,7 +125,7 @@ class IndiTelescopeDevice(IndiBaseDevice):
         }
 
     async def set_telescope_info(self, telescope_aperture: float, telescope_focal_length: float,
-                                 guider_aperture: float, guider_focal_length: float):
+                                 guider_aperture: float, guider_focal_length: float,  *args, **kwargs):
         self.telescope_aperture = telescope_aperture
         self.telescope_focal_length = telescope_focal_length
         self.guider_aperture = guider_aperture
@@ -127,7 +142,7 @@ class IndiTelescopeDevice(IndiBaseDevice):
         self.indi_client.sendNewNumber(telescope_info)
         return None
 
-    async def set_time(self):
+    async def set_time(self, *args, **kwargs):
         """
         note indi will sync time directly it connected to telescope device.
         so if the machine time is correct, then there is no need to change time.
@@ -135,7 +150,7 @@ class IndiTelescopeDevice(IndiBaseDevice):
         """
         pass
 
-    async def set_track(self):
+    async def set_track(self, *args, **kwargs):
         on_coord_set = self.this_device.getSwitch("ON_COORD_SET")
         on_coord_set[0].s = PyIndi.ISS_ON  # TRACK
         on_coord_set[1].s = PyIndi.ISS_OFF  # SLEW
@@ -143,32 +158,32 @@ class IndiTelescopeDevice(IndiBaseDevice):
         self.indi_client.sendNewSwitch(on_coord_set)
         return None
 
-    async def start_track(self):
+    async def start_track(self, *args, **kwargs):
         track_state = self.this_device.getSwitch('TELESCOPE_TRACK_STATE')
         track_state[0].s = PyIndi.ISS_ON
         track_state[1].s = PyIndi.ISS_OFF
         self.indi_client.sendNewSwitch(track_state)
         return None
 
-    async def set_track_mode(self, track_mode):
+    async def set_track_mode(self, track_mode: str, *args, **kwargs):
         """
-
+        todo need further test. tracking rate doesn't change as track mode change
         :param track_mode: sidereal, solar, lunar
         :return:
         """
-        track_mode = self.this_device.getSwitch("TELESCOPE_TRACK_MODE")
+        eq_track_mode = self.this_device.getSwitch("TELESCOPE_TRACK_MODE")
         if track_mode == 'sidereal':
-            track_mode = turn_on_multiple_switch_by_index(track_mode, 0)
+            eq_track_mode = turn_on_multiple_switch_by_index(eq_track_mode, 0)
         elif track_mode == 'solar':
-            track_mode = turn_on_multiple_switch_by_index(track_mode, 1)
+            eq_track_mode = turn_on_multiple_switch_by_index(eq_track_mode, 1)
         elif track_mode == 'lunar':
-            track_mode = turn_on_multiple_switch_by_index(track_mode, 2)
+            eq_track_mode = turn_on_multiple_switch_by_index(eq_track_mode, 2)
         else:
             raise TypeError('wrong tracking name!')
-        self.indi_client.sendNewSwitch(track_mode)
+        self.indi_client.sendNewSwitch(eq_track_mode)
         return None
 
-    async def stop_track(self):
+    async def stop_track(self, *args, **kwargs):
         track_state = self.this_device.getSwitch('TELESCOPE_TRACK_STATE')
         track_state[0].s = PyIndi.ISS_OFF
         track_state[1].s = PyIndi.ISS_ON
@@ -179,6 +194,10 @@ class IndiTelescopeDevice(IndiBaseDevice):
         if self.__is_parked():
             return 'telescope is parked, please unpark first!'
         equad_eod_coord = self.this_device.getNumber("EQUATORIAL_EOD_COORD")
+        if not check_number_range(equad_eod_coord, 0, ra):
+            return 'RA is not in range!'
+        if not check_number_range(equad_eod_coord, 1, dec):
+            return 'DEC is not in range!'
         if equad_eod_coord.getState() == PyIndi.IPS_BUSY:
             return 'telescope is moving, please wait!'
         equad_eod_coord[0].value = ra
@@ -201,7 +220,7 @@ class IndiTelescopeDevice(IndiBaseDevice):
     async def got_az_al(self, az: float, al: float,  target_name=None):
         pass
 
-    async def get_fits_file_format_data(self):
+    async def get_fits_file_format_data(self, *args, **kwargs):
         if self.target_name is not None:
             return {
                 'name': self.target_name,
@@ -210,22 +229,40 @@ class IndiTelescopeDevice(IndiBaseDevice):
         else:
             return None
 
-    async def home(self):
+    async def go_home(self, *args, **kwargs):
         """
-        default as goto ha=-6, dec=90
         found, if the telescope support home instruction, it will have return_home, at_home property.
         :return:
         """
+        if self.can_home:
+            # stop track
+            await self.stop_track()
+            home_switch = self.this_device.getSwitch(home_keyword[self.home_word_type])
+            found_switch = False
+            for (index, one_switch) in enumerate(home_switch):
+                for one_test_gohome_name in go_home_name_list:
+                    if one_test_gohome_name == one_switch.name:
+                        home_switch = turn_on_multiple_switch_by_index(home_switch, index)
+                        found_switch = True
+                        break
+                if found_switch:
+                    break
+            self.indi_client.sendNewSwitch(home_switch)
+            return None
+        else:
+            return 'This telescope do not support go home!'
+
+    async def at_home(self, *args, **kwargs):
         pass
 
-    def __is_parked(self):
+    def __is_parked(self, *args, **kwargs):
         park = self.this_device.getSwitch('TELESCOPE_PARK')
         if park[0] == PyIndi.ISS_ON:
             return True
         else:
             return False
 
-    async def park(self):
+    async def park(self, *args, **kwargs):
         if self.can_park:
             park = self.this_device.getSwitch('TELESCOPE_PARK')
             park[0] = PyIndi.ISS_ON
@@ -235,7 +272,7 @@ class IndiTelescopeDevice(IndiBaseDevice):
         else:
             return 'Telescope cannot park'
 
-    async def unpark(self):
+    async def unpark(self, *args, **kwargs):
         if self.can_park:
             park = self.this_device.getSwitch('TELESCOPE_PARK')
             park[0] = PyIndi.ISS_OFF
@@ -245,10 +282,10 @@ class IndiTelescopeDevice(IndiBaseDevice):
         else:
             return 'Telescope cannot park'            
 
-    async def set_park(self, ha, dec):
+    async def set_park(self, ha, dec, *args, **kwargs):
         pass
 
-    async def abort(self):
+    async def abort(self, *args, **kwargs):
         abort = self.this_device.getSwitch('TELESCOPE_ABORT_MOTION')
         abort[0] = PyIndi.ISS_ON
         self.indi_client.sendNewSwitch(abort)

@@ -1,5 +1,6 @@
 import tornado.web
 from ..IndiInterface import ws_indi_worker
+import json
 
 
 class FIFODeviceStartStop(tornado.web.RequestHandler):
@@ -15,3 +16,9 @@ class FIFODeviceStartStop(tornado.web.RequestHandler):
             self.write('Got!')
         else:
             self.write('Wrong device name!')
+
+
+class FIFOGetAllDevice(tornado.web.RequestHandler):
+    async def get(self):
+        all_devices = ws_indi_worker.get_all_devices()
+        self.write(json.dumps(all_devices))
