@@ -3,7 +3,10 @@ from .misc import *
 import sys
 from .indi_telescope import IndiTelescopeDevice
 from .indi_camera import IndiCameraDevice
+from .indi_focuser import IndiFocusDevice
+from .indi_filter_wheel import IndiFilterWheelDevice
 from .indi_common_printing import *
+from .indi_device_driver_name2type import get_driver_type_by_driver_name
 """
 todo, need to check how to call function by string
 """
@@ -42,9 +45,9 @@ class PyIndiWebSocketWorker:
                 return self.telescope.this_device
             elif device_type == 'camera':
                 return self.camera.this_device
-            elif device_type == 'focuser':
+            elif device_type == 'focus':
                 return self.focuser.this_device
-            elif device_type == 'filter_wheel':
+            elif device_type == 'filter':
                 return self.filter_wheel.this_device
             else:
                 return None
@@ -56,9 +59,9 @@ class PyIndiWebSocketWorker:
             return self.telescope
         elif device_type == 'camera':
             return self.camera
-        elif device_type == 'focuser':
+        elif device_type == 'focus':
             return self.focuser
-        elif device_type == 'filter_wheel':
+        elif device_type == 'filter':
             return self.filter_wheel
         else:
             return None
@@ -87,9 +90,10 @@ class PyIndiWebSocketWorker:
             'ws_instance': ws_instance,
         }
         # todo build target info and other data structure here.
-        targe_info = self.telescope.get_fits_file_format_data()
-        if targe_info is not None:
-            kwargs['target_info'] = targe_info
+        if self.telescope:
+            targe_info = await self.telescope.get_fits_file_format_data()
+            if targe_info is not None:
+                kwargs['target_info'] = targe_info
         return_struct = {
             'type': 'message',
             'message': '',
@@ -109,7 +113,7 @@ class PyIndiWebSocketWorker:
                     return_struct['message'] = e.args[0]
                 return return_struct
             if data is not None:
-                if type(data) == dict:
+                if type(data) == dict or type(data) == list:
                     return_struct['type'] = 'data'
                     return_struct['message'] = 'see data'
                     return_struct['data'] = data
@@ -174,12 +178,56 @@ class PyIndiWebSocketWorker:
                     self.camera.disconnect(self.my_indi_client)
                     self.camera = None
                 return True
-        elif device_type == 'focuser':
-            pass
-        elif device_type == 'filter_wheel':
-            pass
+        elif device_type == 'focus':
+            if start_or_stop:
+                if self.focuser:  # close connection if there has an existing device.
+                    self.logger.info('disconnecting existing focuser...')
+                    self.focuser.disconnect(self.my_indi_client)
+                this_indi_device = self.my_indi_client.getDevice(device_name)
+                if not (this_indi_device):
+                    self.logger.error(f'Got Wrong device name {device_type} / {device_name}')
+                    return False
+                self.logger.info(f'connecting new device {device_type}, {device_name}')
+                self.focuser = IndiFocusDevice(self.my_indi_client, this_indi_device)
+                self.focuser.connect(self.my_indi_client)
+                self.focuser.check_focus_param()
+                return True
+            else:
+                if self.focuser:
+                    self.focuser.disconnect(self.my_indi_client)
+                    self.focuser = None
+                return True
+        elif device_type == 'filter':
+            if start_or_stop:
+                if self.filter_wheel:  # close connection if there has an existing device.
+                    self.logger.info('disconnecting existing filter wheel...')
+                    self.filter_wheel.disconnect(self.my_indi_client)
+                this_indi_device = self.my_indi_client.getDevice(device_name)
+                if not (this_indi_device):
+                    self.logger.error(f'Got Wrong device name {device_type} / {device_name}')
+                    return False
+                self.logger.info(f'connecting new device {device_type}, {device_name}')
+                self.filter_wheel = IndiFilterWheelDevice(self.my_indi_client, this_indi_device)
+                self.filter_wheel.connect(self.my_indi_client)
+                self.filter_wheel.check_filter_param()
+                return True
+            else:
+                if self.filter_wheel:
+                    self.filter_wheel.disconnect(self.my_indi_client)
+                    self.filter_wheel = None
+                return True
         elif device_type == 'phd2':
             pass
         else:
             pass
 
+    def get_all_devices(self):
+        all_devices = self.my_indi_client.getDevices()
+        ret_struct = []
+        for one_device in all_devices:
+            ret_struct.append({
+                'device_name': one_device.getDeviceName(),
+                'device_driver': one_device.getDriverName(),
+                'device_type': get_driver_type_by_driver_name(one_device.getDriverName()),
+            })
+        return ret_struct

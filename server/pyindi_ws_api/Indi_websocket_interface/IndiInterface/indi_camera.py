@@ -3,8 +3,11 @@ from .indi_base_device import IndiBaseDevice
 from PyIndi import BaseDevice
 import tornado.ioloop
 from .indiClientDef import IndiClient
-from .indi_switch_operation import turn_on_second_swtich, turn_on_first_swtich, turn_on_multiple_switch_by_index
+from .indi_switch_operation import turn_on_second_swtich, turn_on_first_swtich, \
+    turn_on_multiple_switch_by_index,\
+    get_multiple_switch_info
 from .indi_property_2_json import indi_property_2_json
+from .indi_number_range_validation import check_number_range, indi_number_single_get_value
 import asyncio
 import PyIndi
 from .misc import indi_logger, blob_event2, blob_event1
@@ -13,7 +16,7 @@ from pathlib import Path
 import json
 
 
-GAIN_Keywords = ["CCD_GAIN", "ControlN"]
+GAIN_Keywords = ["CCD_GAIN", "CCD_CONTROLS"]
 
 
 class IndiCameraDevice(IndiBaseDevice):
@@ -24,6 +27,8 @@ class IndiCameraDevice(IndiBaseDevice):
         self.has_fan = False
         self.has_heater = False
         self.has_binning = False
+        self.has_hcg = False
+        self.has_low_noise = False
         self.gain_type = 0
 
         self.fits_save_path = Path.home() / 'Pictures'
@@ -71,30 +76,81 @@ class IndiCameraDevice(IndiBaseDevice):
             self.has_binning = True
         else:
             self.has_binning = False
+        # check hcg
+        t_s = self.this_device.getSwitch("TC_HCG_CONTROL")
+        if (t_s):
+            self.has_hcg = True
+        else:
+            self.has_hcg = False
+        t_s = self.this_device.getSwitch("TC_LOW_NOISE_CONTROL")
+        if (t_s):
+            self.has_low_noise = True
+        else:
+            self.has_low_noise = False
 
     async def set_cool_target_temperature(self, target_temperature: float, **kwargs):
         temperature = self.this_device.getNumber("CCD_TEMPERATURE")
-        temperature[0].value = target_temperature
-        self.indi_client.sendNewNumber(temperature)
-        return None
+        if check_number_range(temperature, 0, target_temperature):
+            temperature[0].value = target_temperature
+            self.indi_client.sendNewNumber(temperature)
+            return None
+        else:
+            raise ValueError("Temperature is out of range!")
 
     async def get_static_info(self, **kwargs):
         # pixel size, 
         ccd_info = self.this_device.getNumber("CCD_INFO")
-        return indi_property_2_json(ccd_info)  # todo to json
+        return indi_property_2_json(ccd_info)
 
     async def get_set_params(self, **kwargs):
         # gain offset, binning
         ret_json = {}
         gain = self.this_device.getNumber(GAIN_Keywords[self.gain_type])
-        ret_json['gain'] = gain[0].value
+        ret_json['gain'] = indi_number_single_get_value(gain[0])
         offset = self.this_device.getNumber("CCD_OFFSET")
-        ret_json['offset'] = offset[0].value
+        ret_json['offset'] = indi_number_single_get_value(offset[0])
         if self.has_binning:
             binning = self.this_device.getNumber("CCD_BINNING")
-            ret_json['binning'] = binning[0].value
+            ret_json['binning'] = indi_number_single_get_value(binning[0])
         else:
             ret_json['binning'] = None
+        if self.can_cool:
+            ccd_cooler = self.this_device.getSwitch('CCD_COOLER')
+            if ccd_cooler[0].s == PyIndi.ISS_ON:
+                ret_json['cooler'] = True
+            else:
+                ret_json['cooler'] = False
+        else:
+            ret_json['cooler'] = None
+        if self.has_fan:
+            ccd_cooler = self.this_device.getSwitch('TC_FAN_CONTROL')
+            if ccd_cooler[0].s == PyIndi.ISS_ON:
+                ret_json['fan'] = True
+            else:
+                ret_json['fan'] = False
+        else:
+            ret_json['fan'] = None
+        if self.has_heater:
+            ccd_cooler = self.this_device.getSwitch('TC_HEAT_CONTROL')
+            if ccd_cooler[0].s == PyIndi.ISS_ON:
+                ret_json['heater'] = True
+            else:
+                ret_json['heater'] = False
+        else:
+            ret_json['heater'] = None
+        if self.has_hcg:
+            hcg = self.this_device.getSwitch("TC_HCG_CONTROL")
+            ret_json['hcg'] = get_multiple_switch_info(hcg)
+        else:
+            ret_json['hcg'] = None
+        if self.has_low_noise:
+            low_n = self.this_device.getSwitch("TC_LOW_NOISE_CONTROL")
+            if low_n[0].s == PyIndi.ISS_ON:
+                ret_json['low_noise_mode'] = True
+            else:
+                ret_json['low_noise_mode'] = False
+        else:
+            ret_json['low_noise_mode'] = None
         return ret_json
 
     async def get_real_time_info(self, **kwargs):
@@ -158,7 +214,7 @@ class IndiCameraDevice(IndiBaseDevice):
         :return:
         """
         if self.has_heater:
-            ccd_cooler = self.this_device.getSwitch('TC_FAN_CONTROL')
+            ccd_cooler = self.this_device.getSwitch('TC_HEAT_CONTROL')
             ccd_cooler = turn_on_first_swtich(ccd_cooler)
             self.indi_client.sendNewSwitch(ccd_cooler)
         else:
@@ -166,7 +222,7 @@ class IndiCameraDevice(IndiBaseDevice):
 
     async def stop_tc_heat(self, **kwargs):
         if self.has_heater:
-            ccd_cooler = self.this_device.getSwitch('TC_FAN_CONTROL')
+            ccd_cooler = self.this_device.getSwitch('TC_HEAT_CONTROL')
             ccd_cooler = turn_on_second_swtich(ccd_cooler)
             self.indi_client.sendNewSwitch(ccd_cooler)
         else:
@@ -284,8 +340,60 @@ class IndiCameraDevice(IndiBaseDevice):
             self.in_exposure = False
             return 'Exposure aborted!'
 
-    async def set_parameters(self, **kwargs):
-        pass
+    async def set_number_parameters(self, param_name: str, param_value, *args, **kwargs):
+        if param_name == 'gain':
+            gain = self.this_device.getNumber(GAIN_Keywords[self.gain_type])
+            if self.gain_type == 0:
+                if check_number_range(gain, 0, param_value):
+                    gain[0].value = param_value
+                else:
+                    raise ValueError("gain value is out of range!")
+            elif self.gain_type == 1:
+                if check_number_range(gain, 0, param_value):
+                    gain[0].value = param_value
+                else:
+                    raise ValueError("gain value is out of range!")
+            self.indi_client.sendNewNumber(gain)
+        elif param_name == 'offset':
+            offset = self.this_device.getNumber("CCD_OFFSET")
+            if check_number_range(offset, 0, param_value):
+                offset[0].value = param_value
+            else:
+                raise ValueError("offset value is out of range!")
+            self.indi_client.sendNewNumber(offset)
+        elif param_name == 'binning':
+            if self.has_binning:
+                binning = self.this_device.getNumber("CCD_BINNING")
+                if check_number_range(binning, 0, param_value):
+                    binning[0].value = param_value
+                    binning[1].value = param_value
+                else:
+                    raise ValueError("binning value is out of range!")
+                self.indi_client.sendNewNumber(binning)
+        elif param_name == "hcg":
+            if self.has_hcg:
+                hcg = self.this_device.getSwitch("TC_HCG_CONTROL")
+                found = False
+                for (index, one_switch) in enumerate(hcg):
+                    if param_value == one_switch.name:
+                        turn_on_multiple_switch_by_index(hcg, index)
+                        found = True
+                        break
+                if not found:
+                    raise ValueError("hcg setting name is incorrect!")
+                else:
+                    self.indi_client.sendNewSwitch(hcg)
+        elif param_name == "low_noise_mode":
+            if self.has_low_noise:
+                low_n = self.this_device.getSwitch("TC_LOW_NOISE_CONTROL")
+                if param_value == 1:
+                    turn_on_first_swtich(low_n)
+                else:
+                    turn_on_second_swtich(low_n)
+                self.indi_client.sendNewSwitch(low_n)
+        else:
+            pass
+        return None
 
     async def get_parameter(self, **kwargs):
         pass

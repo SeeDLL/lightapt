@@ -98,4 +98,3 @@ def get_str_one_property(indiclient: IndiClient, device_name, *args):
     else:
         return 'Got Wrong device type!! Please check input!'
 
-

@@ -27,6 +27,7 @@ def make_app():
         (r"/ws/debugging/", DebuggingWebSocket),
         (r"/ws/indi_client/", IndiClientWebSocket),
         (r"/FIFO/([^/]+)/([^/]+)/([^/]+)/", FIFODeviceStartStop),
+        (r"/get/all/devices/", FIFOGetAllDevice),
     ])
 
 
