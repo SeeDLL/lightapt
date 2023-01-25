@@ -1,40 +1,117 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 
 <head>
-    {{ basic.load_basic_meta() }}
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>移动端 拖拽按钮</title>
 
-    <title></title>
+    <style>
+        .main {
+            position: relative;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background: pink;
+            padding: 1px;
+            box-sizing: border-box;
+        }
 
-    {{ basic.icon() }}
+        .circle-box {
+            position: absolute;
+            top: 200px;
+            bottom: 0;
+            /* 如果初始化设置right, 需先隐藏left, left级别大于right*/
+            /* left: 0; */
+            right: 1px;
+            width: 40px;
+            height: 40px;
+            line-height: 40px;
+            border-radius: 50%;
+            background-color: transparent;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+            z-index: 999;
+        }
 
-    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
+        .circle-box .circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+            background-color: #fff;
+            opacity: 0.5;
 
-    <link rel="stylesheet" href="/static/css/bootstrap5/mdb.dark.min.css">
+        }
+    </style>
+
+    <!-- js -->
+    <script src="/static/js/jquery/jquery.min.js"></script>
 </head>
 
 <body>
-    <div class="container">
-        <!-- Navbar -->
-        <nav class="navbar navbar-expand-lg">
-            <!-- Container wrapper -->
-            <div class="container-fluid">
-                
-
-                <!-- Right elements -->
-                <div class="d-flex align-items-center">
-                    <button type="button" class="btn btn-primary float-sm-right">Button</button>
-                </div>
-                <!-- Right elements -->
-            </div>
-            <!-- Container wrapper -->
-        </nav>
-        <!-- Navbar -->
+    <div class="main">
+        <div class="circle-box" ontouchmove="touchMove(event)" ontouchend="touchEnd()">
+            <div class="circle"></div>
+        </div>
     </div>
-
-    <script src="/static/js/bootstrap5/mdb.min.js"></script>
 
 </body>
 
 </html>
+<script>
+    var startX = 0;
+    var startY = 0;
+    $(function () {
+        $('.circle-box').on('touchstart', function (event) {
+            var element = event.targetTouches[0];
+            // 初始化位置
+            startX = element.pageX - this.offsetLeft;
+            startY = element.pageY - this.offsetTop;
+            console.log(startX, startY);
+            return false
+        })
+    })
+    function touchMove(event) {
+        var element = event.targetTouches[0];
+        var x = element.clientX - startX;
+        var y = element.clientY - startY;
+        parentWidth = $('.main').innerWidth();
+        parentHeight = $('.main').innerHeight();
+
+        // 设置 上边界
+        if (y <= 0) {
+            y = 1;
+        }
+
+        // 设置 下边界 40: 移动框自身宽度
+        if (y >= parentHeight - 40) {
+            x = parentHeight - 40 - 1;
+        }
+
+        // 设置 左边界
+        if (x <= 0) {
+            x = 1;
+        }
+
+        // 设置 右边界 40: 移动框自身宽度
+        if (x >= parentWidth - 40) {
+            x = parentWidth - 40 - 1;
+        }
+
+        $('.circle-box').css({
+            'left': x + 'px',
+            'top': y + 'px'
+        })
+
+        return false
+    }
+
+    function touchEnd(event) {
+        $('.main').unbind('mousemove')
+        $('.main').unbind('mouseup')
+    }
+</script>

@@ -130,14 +130,22 @@ def main():
         logger.loge(_("Invalid INDI web manager options : {}").format(str(e)))
     # Start the web server
     try:
+        # Start the websocket server
         from server.wsserver import ws_server
         _ws_ = ws_server()
         _ws_.start_server(c.config["ws"]["host"], c.config["ws"]["port"], c.config["ws"]["ssl"],c.config["ws"]["key"], c.config["ws"]["cert"])
+        # Start the webssh server
         from server.webssh.webssh import start_webssh
         from multiprocessing import Process
         _webssh_ = Process(target=start_webssh)
         _webssh_.daemon = True
         _webssh_.start()
+        # Start the INDI wrapper server
+        """import server.pyindi_ws_api.IndiWebsocketTornadoServer as indiserver
+        _indiwrapper_ = Process(target=indiserver.main)
+        _indiwrapper_.daemon = True
+        _indiwrapper_.start()"""
+        # Start the main server
         from server.webapp import run_server
         run_server()
     except KeyboardInterrupt:

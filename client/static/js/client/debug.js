@@ -79,7 +79,7 @@ JSON.format = formatJson = function (json, options) {
     return data
 };
 
-"use strict"
+"use strict";
 
 /**
  * 创建Vue实例

@@ -45,7 +45,7 @@ $(function () {
     // initialize the external events
     // -----------------------------------------------------------------
 
-    new Draggable(containerEl, {
+    var draggable = new Draggable(containerEl, {
         itemSelector: '.external-event',
         eventData: function (eventEl) {
             return {

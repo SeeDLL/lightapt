@@ -181,7 +181,6 @@ def create_html_page(app) -> None:
     @app.route("/test",methods=['GET'])
     @app.route("/test/", methods=['GET'])
     @app.route("/test.html", methods=['GET'])
-    @login_required
     def test():
         return render_template("test.html")
 
@@ -228,7 +227,7 @@ class _WebBasic(object):
         meta = """
             <meta charset="utf-8">
             <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
         """
         return Markup(meta)
 
