@@ -29,8 +29,7 @@ from server.api.ascom.exception import AscomCameraError as error
 from server.api.ascom.exception import AscomCameraSuccess as success
 from server.api.ascom.exception import AscomCameraWarning as warning
 
-from utils.lightlog import lightlog
-log = lightlog(__name__)
+from ...logging import logger,return_error,return_success,return_warning
 
 import gettext
 _ = gettext.gettext
@@ -108,39 +107,39 @@ class AscomCameraAPI(BasicCameraAPI):
             }
         """
         if self.info._is_connected:
-            log.logw(_(f"Camera is connected , please do not execute {_getframe().f_code.co_name} command again"))
-            return log.return_warning(_("Camera is connected"),{})
+            logger.warning(_(f"Camera is connected , please do not execute {_getframe().f_code.co_name} command again"))
+            return return_warning(_("Camera is connected"),{})
         if self.device is not None:
-            log.logw(error.OneDevice.value)
-            return log.return_warning(error.OneDevice.value,{"error":error.OneDevice.value})
+            logger.warning(error.OneDevice.value)
+            return return_warning(error.OneDevice.value,{"error":error.OneDevice.value})
         host = params.get('host')
         port = params.get('port')
         device_number = params.get('device_number')
         if host is None:
-            log.logw(error.NoHostValue.value)
+            logger.warning(error.NoHostValue.value)
             host = "127.0.0.1"
         if port is None:
-            log.logw(error.NoPortValue.value)
+            logger.warning(error.NoPortValue.value)
             port = 11111
         if device_number is None:
-            log.logw(error.NoDeviceNumber.value)
+            logger.warning(error.NoDeviceNumber.value)
             device_number = 0
         try:
             self.device = Camera(host + ":" + str(port), device_number)
             self.device.Connected = True
         except DriverException as e:
-            log.loge(_(f"Faild to connect to device on {host}:{port}"))
-            return log.return_error(_(f"Failed to connect to device on {host}:{port}"))
+            logger.error(_(f"Faild to connect to device on {host}:{port}"))
+            return return_error(_(f"Failed to connect to device on {host}:{port}"))
         except ConnectionError as e:
-            log.loge(_(f"Network error while connecting to camera , error : {e}"))
-            return log.return_error(_("Network error while connecting to camera"),{"error" : e})
-        log.log(_("Connected to device successfully"))
+            logger.error(_(f"Network error while connecting to camera , error : {e}"))
+            return return_error(_("Network error while connecting to camera"),{"error" : e})
+        logger.info(_("Connected to device successfully"))
         self.info._is_connected = True
         self.info._type = "ascom"
         res = self.get_configration()
         if res.get('status') != 0:
-            return log.return_error(_(f"Failed tp load camera configuration"),{})
-        return log.return_success(_("Connect to camera successfully"),{"info":res.get("info")})
+            return return_error(_(f"Failed tp load camera configuration"),{})
+        return return_success(_("Connect to camera successfully"),{"info":res.get("info")})
 
     def disconnect(self) -> dict:
         """
@@ -154,20 +153,20 @@ class AscomCameraAPI(BasicCameraAPI):
             NOTE : This function must be called before destory all server
         """
         if not self.info._is_connected or self.device is None:
-            log.logw(_(f"{error.NotConnected.value.value} , please do not execute {_getframe().f_code.co_name} command"))
-            return log.return_warning(_(error.NotConnected.value.value),{})
+            logger.warning(_(f"{error.NotConnected.value.value} , please do not execute {_getframe().f_code.co_name} command"))
+            return return_warning(_(error.NotConnected.value.value),{})
         try:
             self.device.Connected = False
         except DriverException as e:
-            log.loge(_(f"Faild to disconnect from device , error : {e}"))
-            return log.return_error(error.DriverError.value.value,{"error" : e})
+            logger.error(_(f"Faild to disconnect from device , error : {e}"))
+            return return_error(error.DriverError.value.value,{"error" : e})
         except ConnectionError as e:
-            log.loge(_(f"Network error while disconnecting from camera, error : {e}"))
-            return log.return_error(error.NetworkError.value.value,{"error" : e})
+            logger.error(_(f"Network error while disconnecting from camera, error : {e}"))
+            return return_error(error.NetworkError.value.value,{"error" : e})
         self.device = None
         self.info._is_connected = False
-        log.log(_("Disconnected from camera successfully"))
-        return log.return_success(_("Disconnect from camera successfully"),{"params":None})
+        logger.info(_("Disconnected from camera successfully"))
+        return return_success(_("Disconnect from camera successfully"),{"params":None})
 
     def reconnect(self) -> dict:
         """
@@ -180,21 +179,21 @@ class AscomCameraAPI(BasicCameraAPI):
             }
         """
         if self.device is None or not self.info._is_connected:
-            log.logw(_(f"{error.NotConnected.value} , please do not execute {_getframe().f_code.co_name} command"))
-            return log.return_warning(_(error.NotConnected.value),{}) 
+            logger.warning(_(f"{error.NotConnected.value} , please do not execute {_getframe().f_code.co_name} command"))
+            return return_warning(_(error.NotConnected.value),{}) 
         try:
             self.device.Connected = False
             sleep(1)
             self.device.Connected = True
         except DriverException as e:
-            log.loge(_(f"Faild to reconnect to device, error : {e}"))
-            return log.return_error(_(f"Failed to reconnect to device"),{"error" : e})
+            logger.error(_(f"Faild to reconnect to device, error : {e}"))
+            return return_error(_(f"Failed to reconnect to device"),{"error" : e})
         except ConnectionError as e:
-            log.loge(_(f"Network error while reconnecting to camera, error : {e}"))
-            return log.return_error(error.NetworkError.value.value,{"error" : e})
-        log.log(success.ReconnectSuccess.value)
+            logger.error(_(f"Network error while reconnecting to camera, error : {e}"))
+            return return_error(error.NetworkError.value.value,{"error" : e})
+        logger.info(success.ReconnectSuccess.value)
         self.info._is_connected = True
-        return log.return_success(success.ReconnectSuccess.value,{})
+        return return_success(success.ReconnectSuccess.value,{})
 
     def scanning(self) -> dict:
         """
@@ -209,12 +208,12 @@ class AscomCameraAPI(BasicCameraAPI):
             }
         """
         if self.device is not None and self.info._is_connected:
-            log.logw(warning.DisconnectBeforeScanning.value)
-            return log.return_warning(warning.DisconnectBeforeScanning.value,{"warning":warning.DisconnectBeforeScanning})
+            logger.warning(warning.DisconnectBeforeScanning.value)
+            return return_warning(warning.DisconnectBeforeScanning.value,{"warning":warning.DisconnectBeforeScanning})
         l = []
-        log.log(_(f"Scanning camera : {l}"))
-        log.log(success.ScanningSuccess.value)
-        return log.return_success(success.ScanningSuccess.value,{"camera":l})
+        logger.info(_(f"Scanning camera : {l}"))
+        logger.info(success.ScanningSuccess.value)
+        return return_success(success.ScanningSuccess.value,{"camera":l})
 
     def polling(self) -> dict:
         """
@@ -229,12 +228,12 @@ class AscomCameraAPI(BasicCameraAPI):
             }
         """
         if self.device is None or not self.info._is_connected:
-            log.logw(_(f"{error.NotConnected.value} , please do not execute polling command"))
-            return log.return_warning(_(error.NotConnected.value),{})
+            logger.warning(_(f"{error.NotConnected.value} , please do not execute polling command"))
+            return return_warning(_(error.NotConnected.value),{})
         res = self.info.get_dict()
-        log.logd(_(f"New camera info : {res}"))
-        log.log(success.PollingSuccess.value)
-        return log.return_success(success.PollingSuccess.value,{"info":res})
+        logger.debug(_(f"New camera info : {res}"))
+        logger.info(success.PollingSuccess.value)
+        return return_success(success.PollingSuccess.value,{"info":res})
 
     def get_configration(self) -> dict:
         """
@@ -249,102 +248,102 @@ class AscomCameraAPI(BasicCameraAPI):
             }
         """
         if self.device is None or not self.info._is_connected:
-            log.logw(_(f"{error.NotConnected.value}, please do not execute {_getframe().f_code.co_name} command"))
-            return log.return_warning(_(error.NotConnected.value),{})
+            logger.warning(_(f"{error.NotConnected.value}, please do not execute {_getframe().f_code.co_name} command"))
+            return return_warning(_(error.NotConnected.value),{})
         try:
             self.info._name = self.device.Name
-            log.logd(_(f"Camera name : {self.info._name}"))
+            logger.debug(_(f"Camera name : {self.info._name}"))
             self.info._id = self.device._client_id
-            log.logd(_(f"Camera ID : {self.info._id}"))
+            logger.debug(_(f"Camera ID : {self.info._id}"))
             self.info._description = self.device.Description
-            log.logd(_(f"Camera description : {self.info._description}"))
+            logger.debug(_(f"Camera description : {self.info._description}"))
             self.info._ipaddress = self.device.address
-            log.logd(_(f"Camera IP address : {self.info._ipaddress}"))
+            logger.debug(_(f"Camera IP address : {self.info._ipaddress}"))
             self.info._api_version = self.device.api_version
-            log.logd(_(f"Camera API version : {self.info._api_version}"))
+            logger.debug(_(f"Camera API version : {self.info._api_version}"))
 
             self.info._can_binning = self.device.CanAsymmetricBin
-            log.logd(_(f"Can camera set binning mode : {self.info._can_binning}"))
+            logger.debug(_(f"Can camera set binning mode : {self.info._can_binning}"))
             self.info._binning = [self.device.BinX, self.device.BinY]
-            log.logd(_(f"Camera current binning mode : {self.info._binning}"))
+            logger.debug(_(f"Camera current binning mode : {self.info._binning}"))
 
             self.info._can_cooling = self.device.CanSetCCDTemperature
-            log.logd(_(f"Can camera set cooling : {self.info._can_cooling}"))
+            logger.debug(_(f"Can camera set cooling : {self.info._can_cooling}"))
             self.info._can_get_coolpower = self.device.CanGetCoolerPower
-            log.logd(_(f"Can camera get cooling power : {self.info._can_get_coolpower}"))
+            logger.debug(_(f"Can camera get cooling power : {self.info._can_get_coolpower}"))
             if self.info._can_cooling:
                 try:
                     self.info._temperature = self.device.CCDTemperature
                 except InvalidValueException as e:
-                    log.logd(error.CanNotGetTemperature)
+                    logger.debug(error.CanNotGetTemperature)
             if self.info._can_get_coolpower:
                 try:
                     self.info._cool_power = self.device.CoolerPower
                 except InvalidValueException as e:
-                    log.logd(error.CanNotGetPower)
+                    logger.debug(error.CanNotGetPower)
             try:
                 self.info._gain = self.device.Gain
-                log.logd(_(f"Camera current gain : {self.info._gain}"))
+                logger.debug(_(f"Camera current gain : {self.info._gain}"))
                 self.info._max_gain = self.device.GainMax
-                log.logd(_(f"Camera max gain : {self.info._max_gain}"))
+                logger.debug(_(f"Camera max gain : {self.info._max_gain}"))
                 self.info._min_gain = self.device.GainMin
-                log.logd(_(f"Camera min gain : {self.info._min_gain}"))
+                logger.debug(_(f"Camera min gain : {self.info._min_gain}"))
                 self.info._can_gain = True
-                log.logd(_(f"Can camera set gain : {self.info._can_gain}"))
+                logger.debug(_(f"Can camera set gain : {self.info._can_gain}"))
             except NotImplementedException:
                 self.info._max_gain = 0
                 self.info._min_gain = 0
                 self.info._can_gain = False
-                log.logd(_(f"Can camera set gain : {self.info._can_gain}"))
+                logger.debug(_(f"Can camera set gain : {self.info._can_gain}"))
             
             self.info._can_guiding = self.device.CanPulseGuide
-            log.logd(_(f"Can camera guiding : {self.info._can_guiding}"))
+            logger.debug(_(f"Can camera guiding : {self.info._can_guiding}"))
             self.info._can_has_shutter = self.device.HasShutter
-            log.logd(_(f"Can camera has shutter : {self.info._can_has_shutter}"))
+            logger.debug(_(f"Can camera has shutter : {self.info._can_has_shutter}"))
             self.info._can_iso = False
-            log.logd(_(f"Can camera set iso : {self.info._can_iso}"))
+            logger.debug(_(f"Can camera set iso : {self.info._can_iso}"))
             try:
                 self.info._offset = self.device.Offset
-                log.logd(_(f"Camera current offset : {self.info._offset}"))
+                logger.debug(_(f"Camera current offset : {self.info._offset}"))
                 self.info._max_offset = self.device.OffsetMax
-                log.logd(_(f"Camera max offset : {self.info._max_offset}"))
+                logger.debug(_(f"Camera max offset : {self.info._max_offset}"))
                 self.info._min_offset = self.device.OffsetMin
-                log.logd(_(f"Camera min offset : {self.info._min_offset}"))
+                logger.debug(_(f"Camera min offset : {self.info._min_offset}"))
                 self.info._can_offset = True
-                log.logd(_(f"Can camera set offset : {self.info._can_offset}"))
+                logger.debug(_(f"Can camera set offset : {self.info._can_offset}"))
             except InvalidOperationException:
                 self.info._max_offset = 0
                 self.info._min_offset = 0
                 self.info._can_offset = False
-                log.logd(_(f"Can camera set offset : {self.info._can_offset}"))
+                logger.debug(_(f"Can camera set offset : {self.info._can_offset}"))
 
             self.info._is_cooling = self.device.CoolerOn
-            log.logd(_(f"Is camera cooling : {self.info._is_cooling}"))
+            logger.debug(_(f"Is camera cooling : {self.info._is_cooling}"))
             self.info._is_exposure = CameraState.get(self.device.CameraState)
-            log.logd(_(f"Is camera exposure : {self.info._is_exposure}"))
+            logger.debug(_(f"Is camera exposure : {self.info._is_exposure}"))
             try:
                 self.info._is_guiding = self.device.IsPulseGuiding
-                log.logd(_(f"Is camera guiding : {self.info._is_guiding}"))
+                logger.debug(_(f"Is camera guiding : {self.info._is_guiding}"))
             except NotImplementedException:
                 self.info._is_guiding = False
             self.info._is_imageready = self.device.ImageReady
-            log.logd(_(f"Is camera image ready : {self.info._is_imageready}"))
+            logger.debug(_(f"Is camera image ready : {self.info._is_imageready}"))
             self.info._is_video = False
-            log.logd(_(f"Is camera video : {self.info._is_video}"))
+            logger.debug(_(f"Is camera video : {self.info._is_video}"))
 
             self.info._max_exposure = self.device.ExposureMax
-            log.logd(_(f"Camera max exposure : {self.info._max_exposure}"))
+            logger.debug(_(f"Camera max exposure : {self.info._max_exposure}"))
             self.info._min_exposure = self.device.ExposureMin
-            log.logd(_(f"Camera min exposure : {self.info._min_exposure}"))
+            logger.debug(_(f"Camera min exposure : {self.info._min_exposure}"))
             self.info._min_exposure_increment = self.device.ExposureResolution
-            log.logd(_(f"Camera min exposure increment : {self.info._min_exposure_increment}"))
+            logger.debug(_(f"Camera min exposure increment : {self.info._min_exposure_increment}"))
             self.info._max_binning = [self.device.MaxBinX,self.device.MaxBinY]
-            log.logd(_(f"Camera max binning : {self.info._max_binning}"))
+            logger.debug(_(f"Camera max binning : {self.info._max_binning}"))
 
             self.info._height = self.device.CameraYSize
-            log.logd(_(f"Camera frame height : {self.info._height}"))
+            logger.debug(_(f"Camera frame height : {self.info._height}"))
             self.info._width = self.device.CameraXSize
-            log.logd(_(f"Camera frame width : {self.info._width}"))
+            logger.debug(_(f"Camera frame width : {self.info._width}"))
             self.info._max_height = self.info._height
             self.info._max_width = self.info._width
             self.info._min_height = self.info._height
@@ -352,9 +351,9 @@ class AscomCameraAPI(BasicCameraAPI):
             self.info._depth = self.device.ImageArrayInfo
             try:
                 self.info._bayer_offset_x = self.device.BayerOffsetX
-                log.logd(_(f"Camera bayer offset x : {self.info._bayer_offset_x}"))
+                logger.debug(_(f"Camera bayer offset x : {self.info._bayer_offset_x}"))
                 self.info._bayer_offset_y = self.device.BayerOffsetY
-                log.logd(_(f"Camera bayer offset y : {self.info._bayer_offset_y}"))
+                logger.debug(_(f"Camera bayer offset y : {self.info._bayer_offset_y}"))
                 self.info._bayer_pattern = 0
                 self.info._is_color = True
             except NotImplementedException:
@@ -363,34 +362,34 @@ class AscomCameraAPI(BasicCameraAPI):
                 self.info._bayer_pattern = ""
                 self.info._is_color = False
             self.info._pixel_height = self.device.PixelSizeY
-            log.logd(_(f"Camera pixel height : {self.info._pixel_height}"))
+            logger.debug(_(f"Camera pixel height : {self.info._pixel_height}"))
             self.info._pixel_width = self.device.PixelSizeX
-            log.logd(_(f"Camera pixel width : {self.info._pixel_width}"))
+            logger.debug(_(f"Camera pixel width : {self.info._pixel_width}"))
             self.info._max_adu = self.device.MaxADU
-            log.logd(_(f"Camera max ADU : {self.info._max_adu}"))
+            logger.debug(_(f"Camera max ADU : {self.info._max_adu}"))
             self.info._start_x = self.device.StartX
-            log.logd(_(f"Camera start x : {self.info._start_x}"))
+            logger.debug(_(f"Camera start x : {self.info._start_x}"))
             self.info._start_y = self.device.StartY
-            log.logd(_(f"Camera start y : {self.info._start_y}"))
+            logger.debug(_(f"Camera start y : {self.info._start_y}"))
             self.info._subframe_x = self.device.NumX
-            log.logd(_(f"Camera subframe x : {self.info._subframe_x}"))
+            logger.debug(_(f"Camera subframe x : {self.info._subframe_x}"))
             self.info._subframe_y = self.device.NumY
-            log.logd(_(f"Camera subframe y : {self.info._subframe_y}"))
+            logger.debug(_(f"Camera subframe y : {self.info._subframe_y}"))
             self.info._sensor_name = self.device.SensorName
-            log.logd(_(f"Camera sensor name : {self.info._sensor_name}"))
+            logger.debug(_(f"Camera sensor name : {self.info._sensor_name}"))
             self.info._sensor_type = Sensor.get(self.device.SensorType)
-            log.logd(_(f"Camera sensor type : {self.info._sensor_type}"))
+            logger.debug(_(f"Camera sensor type : {self.info._sensor_type}"))
 
         except NotConnectedException as e:
-            log.loge(_(error.NotConnected.value))
-            return log.return_error(_(error.NotConnected.value,{}))
+            logger.error(_(error.NotConnected.value))
+            return return_error(_(error.NotConnected.value,{}))
         except DriverException as e:
             pass
         except ConnectionError as e:
-            log.loge(_(f"{error.NetworkError.value} , error : {e}"))
-            return log.return_error(error.NetworkError.value.value,{"error":e})
-        log.log(success.GetConfigrationSuccess.value)
-        return log.return_success(success.GetConfigrationSuccess.value,{"info" : self.info.get_dict()})
+            logger.error(_(f"{error.NetworkError.value} , error : {e}"))
+            return return_error(error.NetworkError.value.value,{"error":e})
+        logger.info(success.GetConfigrationSuccess.value)
+        return return_success(success.GetConfigrationSuccess.value,{"info" : self.info.get_dict()})
 
     def set_configration(self, params: dict) -> dict:
         return super().set_configration(params)
@@ -420,11 +419,11 @@ class AscomCameraAPI(BasicCameraAPI):
                 try:
                     file.write(dumps(self.info.get_dict(),indent=4,ensure_ascii=False))
                 except JSONDecodeError as e:
-                    log.loge(_(f"JSON decoder error , error : {e}"))
+                    logger.error(_(f"JSON decoder error , error : {e}"))
         except OSError as e:
-            log.loge(_(f"Failed to write configuration to file , error : {e}"))
-        log.log(success.SaveConfigrationSuccess.value)
-        return log.return_success(success.SaveConfigrationSuccess.value,{})
+            logger.error(_(f"Failed to write configuration to file , error : {e}"))
+        logger.info(success.SaveConfigrationSuccess.value)
+        return return_success(success.SaveConfigrationSuccess.value,{})
 
     def start_exposure(self, params : dict) -> dict:
         """
@@ -455,8 +454,8 @@ class AscomCameraAPI(BasicCameraAPI):
             NOTE : This function is a blocking function
         """
         if self.device is None or not self.info._is_connected:
-            log.logw(_(f"{error.NotConnected.value} , please do not execute {_getframe().f_code.co_name} command"))
-            return log.return_warning(_(error.NotConnected.value),{})
+            logger.warning(_(f"{error.NotConnected.value} , please do not execute {_getframe().f_code.co_name} command"))
+            return return_warning(_(error.NotConnected.value),{})
         exposure = params.get("exposure")
         gain = params.get("gain")
         offset = params.get("offset")
@@ -471,91 +470,91 @@ class AscomCameraAPI(BasicCameraAPI):
             filterwheel = params.get("filterwheel").get("enable")
             _filter = params.get("filterwheel").get("filter")
             if filterwheel:
-                log.logd(_("Change"))
+                logger.debug(_("Change"))
             if _filter:
-                log.logd(_(_filter))
+                logger.debug(_(_filter))
 
         if exposure is None or not self.info._min_exposure < exposure < self.info._max_exposure:
-            log.loge(error.InvalidExposureValue.value)
-            return log.return_error(error.InvalidExposureValue.value,{"error":exposure})
-        log.logd(_(f"Exposure time : {exposure}"))
+            logger.error(error.InvalidExposureValue.value)
+            return return_error(error.InvalidExposureValue.value,{"error":exposure})
+        logger.debug(_(f"Exposure time : {exposure}"))
         
         try:
             # Set gain if available
             if self.info._can_gain:
                 if gain is None or not self.info._min_gain < gain < self.info._max_gain:
                     gain = 20
-                    log.logw(error.InvalidGainValue.value)
+                    logger.warning(error.InvalidGainValue.value)
                 self.device.Gain = gain
-                log.logd(_(f"Set gain successfully , set to {gain}"))
+                logger.debug(_(f"Set gain successfully , set to {gain}"))
             # Set offset if available
             if self.info._can_offset:
                 if offset is None or offset < 0:
                     offset = 20
-                    log.logw(error.InvalidOffsetValue.value)
+                    logger.warning(error.InvalidOffsetValue.value)
                 self.device.Offset = offset
-                log.logd(_(f"Set offset successfully, set to {offset}"))
+                logger.debug(_(f"Set offset successfully, set to {offset}"))
             # Set binning mode if available
             if self.info._can_binning:
                 if binning is None or not 0 < binning < self.info._max_binning[0]:
                     binning = 1
-                    log.logw(error.InvalidBinningValue.value)
+                    logger.warning(error.InvalidBinningValue.value)
                 self.device.BinX = binning
                 self.device.BinY = binning
-                log.logd(_(f"Set binning successfully, set to {binning}"))
+                logger.debug(_(f"Set binning successfully, set to {binning}"))
 
         except InvalidValueException as e:
-            log.loge(_(f"Invalid value , error: {e}"))
-            return log.return_error(_("Invalid value"),{"error":e})
+            logger.error(_(f"Invalid value , error: {e}"))
+            return return_error(_("Invalid value"),{"error":e})
         except NotConnectedException as e:
-            log.loge(_(f"Remote device is not connected ,error: {e}"))
-            return log.return_error(_(error.NotConnected.value),{"error":e})
+            logger.error(_(f"Remote device is not connected ,error: {e}"))
+            return return_error(_(error.NotConnected.value),{"error":e})
         except DriverException as e:
-            log.loge(_(f"Remote driver error , {e}"))
-            return log.return_error(error.DriverError.value,{"error":e})
+            logger.error(_(f"Remote driver error , {e}"))
+            return return_error(error.DriverError.value,{"error":e})
         except ConnectionError as e:
-            log.loge(_(f"{error.NetworkError.value} , error : {e}"))
-            return log.return_error(error.NetworkError.value,{"error":e})
+            logger.error(_(f"{error.NetworkError.value} , error : {e}"))
+            return return_error(error.NetworkError.value,{"error":e})
         
         if is_dark:
-            log.logd(_("Prepare to create a dark image"))
+            logger.debug(_("Prepare to create a dark image"))
 
-        log.log(_("Start exposure ..."))
+        logger.info(_("Start exposure ..."))
         try:
             self.device.StartExposure(exposure,is_dark)
             self.info._is_exposure = True
             sleep(0.1)
             if not self.device.ImageReady and self.device.CameraState == CameraStates.cameraExposing:
-                log.log(_("Start exposure successfully"))
+                logger.info(_("Start exposure successfully"))
                 self.info._last_exposure = exposure
             else:
-                log.log(_("Start exposure failed"))
+                logger.info(_("Start exposure failed"))
             used_time = 0
             while not self.device.ImageReady:
                 sleep(0.1)
                 used_time += 0.1
-                log.logd(_(f"Had already used time : {used_time} seconds , progress completed : {self.device.PercentCompleted}"))
+                logger.debug(_(f"Had already used time : {used_time} seconds , progress completed : {self.device.PercentCompleted}"))
 
                 if self.device.CameraState == CameraStates.cameraError:
-                    log.loge(_("Some error occurred when camera was exposuring"))
-                    return log.return_error(_("Some error occurred when camera was exposuring"),{"error" : ""})
-            log.log(_("Finish exposure successfully & download image ..."))
+                    logger.error(_("Some error occurred when camera was exposuring"))
+                    return return_error(_("Some error occurred when camera was exposuring"),{"error" : ""})
+            logger.info(_("Finish exposure successfully & download image ..."))
             
         except InvalidValueException as e:
-            log.loge(_(f"Invalid value, error: {e}"))
-            return log.return_error(_("Invalid value"),{"error":e})
+            logger.error(_(f"Invalid value, error: {e}"))
+            return return_error(_("Invalid value"),{"error":e})
         except InvalidOperationException as e:
-            log.loge(_(f"Invalid operation, error: {e}"))
-            return log.return_error(_("Invalid operation"),{"error":e})
+            logger.error(_(f"Invalid operation, error: {e}"))
+            return return_error(_("Invalid operation"),{"error":e})
         except NotConnectedException as e:
-            log.loge(_(f"Remote device is not connected,error: {e}"))
-            return log.return_error(_(error.NotConnected.value),{"error":e})
+            logger.error(_(f"Remote device is not connected,error: {e}"))
+            return return_error(_(error.NotConnected.value),{"error":e})
         except DriverException as e:
-            log.loge(_(f"Remote driver error, {e}"))
-            return log.return_error(error.DriverError.value,{"error":e})
+            logger.error(_(f"Remote driver error, {e}"))
+            return return_error(error.DriverError.value,{"error":e})
         except ConnectionError as e:
-            log.loge(_(f"{error.NetworkError.value} , error : {e}"))
-            return log.return_error(error.NetworkError.value,{"error":e})
+            logger.error(_(f"{error.NetworkError.value} , error : {e}"))
+            return return_error(error.NetworkError.value,{"error":e})
         finally:
             self.info._is_exposure = False
         
@@ -586,35 +585,35 @@ class AscomCameraAPI(BasicCameraAPI):
             NOTE : This function must be called if exposure is still in progress when shutdown server
         """
         if not self.info._is_connected:
-            log.logw(_(f"Could not abort exposure, camera is not connected"))
-            return log.return_error(_(error.NotConnected.value),{})
+            logger.warning(_(f"Could not abort exposure, camera is not connected"))
+            return return_error(_(error.NotConnected.value),{})
         if not self.info._is_exposure:
-            log.logw(_("Exposure not started , please do not execute abort_exposure() command"))
-            return log.return_warning(_("Exposure not started"),{})
+            logger.warning(_("Exposure not started , please do not execute abort_exposure() command"))
+            return return_warning(_("Exposure not started"),{})
         try:
             self.device.StopExposure()
             sleep(0.5)
             if self.device.CameraState == CameraStates.cameraIdle:
-                log.log(success.AbortExposureSuccess.value)
-                return log.return_success(success.AbortExposureSuccess.value,{})
+                logger.info(success.AbortExposureSuccess.value)
+                return return_success(success.AbortExposureSuccess.value,{})
             else:
-                log.log(error.AbortExposureError)
-                return log.return_error(error.AbortExposureError.value,{"error": error.AbortExposureError.value})
+                logger.info(error.AbortExposureError)
+                return return_error(error.AbortExposureError.value,{"error": error.AbortExposureError.value})
         except NotImplementedException as e:
-            log.loge(_(f"Sorry,exposure is not supported to stop , error: {e}"))
-            return log.return_error(_("Sorry,exposure is not supported to stop"),{"error":e})
+            logger.error(_(f"Sorry,exposure is not supported to stop , error: {e}"))
+            return return_error(_("Sorry,exposure is not supported to stop"),{"error":e})
         except NotConnectedException as e:
-            log.loge(_(f"Remote device is not connected,error: {e}"))
-            return log.return_error(_(error.NotConnected.value),{"error":e})
+            logger.error(_(f"Remote device is not connected,error: {e}"))
+            return return_error(_(error.NotConnected.value),{"error":e})
         except InvalidOperationException as e:
-            log.loge(_(f"Invalid operation, error: {e}"))
-            return log.return_error(error.InvalidOperation.value,{"error":e})
+            logger.error(_(f"Invalid operation, error: {e}"))
+            return return_error(error.InvalidOperation.value,{"error":e})
         except DriverException as e:
-            log.loge(_(f"Remote driver error, {e}"))
-            return log.return_error(error.DriverError.value,{"error":e})
+            logger.error(_(f"Remote driver error, {e}"))
+            return return_error(error.DriverError.value,{"error":e})
         except ConnectionError as e:
-            log.loge(_(f"Network error while get camera configuration , error : {e}"))
-            return log.return_error(_("Network error while get camera configuration"),{"error":e})
+            logger.error(_(f"Network error while get camera configuration , error : {e}"))
+            return return_error(_("Network error while get camera configuration"),{"error":e})
         finally:
             self.info._is_exposure = False
         
@@ -631,26 +630,26 @@ class AscomCameraAPI(BasicCameraAPI):
             }
         """
         if not self.info._is_connected:
-            log.logw(_(f"Cannot get exposure status, camera is not connected"))
-            return log.return_error(error.NotConnected.value,{"error": error.NotConnected.value})
+            logger.warning(_(f"Cannot get exposure status, camera is not connected"))
+            return return_error(error.NotConnected.value,{"error": error.NotConnected.value})
         if not self.info._is_exposure:
-            log.logw(_(f"Exposure not started, please do not execute get_exposure_status() command"))
-            return log.return_warning(_("Exposure not started"),{})
+            logger.warning(_(f"Exposure not started, please do not execute get_exposure_status() command"))
+            return return_warning(_("Exposure not started"),{})
 
         try:
             status = CameraState.get(self.device.CameraState)
         except NotConnectedException as e:
-            log.loge(_(f"Remote device is not connected,error: {e}"))
-            return log.return_error(_(error.NotConnected.value),{"error":e})
+            logger.error(_(f"Remote device is not connected,error: {e}"))
+            return return_error(_(error.NotConnected.value),{"error":e})
         except DriverException as e:
-            log.loge(_(f"Remote driver error, {e}"))
-            return log.return_error(error.DriverError.value,{"error":e})
+            logger.error(_(f"Remote driver error, {e}"))
+            return return_error(error.DriverError.value,{"error":e})
         except ConnectionError as e:
-            log.loge(_(f"Network error while get camera configuration, error : {e}"))
-            return log.return_error(error.NetworkError.value,{"error":e})
+            logger.error(_(f"Network error while get camera configuration, error : {e}"))
+            return return_error(error.NetworkError.value,{"error":e})
 
-        log.logd(_(f"Get camera exposure status : {status}"))
-        return log.return_success(_("Get camera exposure status successfully"),{"status":status})
+        logger.debug(_(f"Get camera exposure status : {status}"))
+        return return_success(_("Get camera exposure status successfully"),{"status":status})
 
     def get_exposure_result(self) -> dict:
         """
@@ -668,11 +667,11 @@ class AscomCameraAPI(BasicCameraAPI):
             NOTE : Format!
         """
         if not self.info._is_connected:
-            log.logw(_(f"Cannot get exposure result, camera is not connected"))
-            return log.return_error(error.NotConnected.value,{"error": error.NotConnected.value})
+            logger.warning(_(f"Cannot get exposure result, camera is not connected"))
+            return return_error(error.NotConnected.value,{"error": error.NotConnected.value})
         if self.info._is_exposure:
-            log.loge(_("Exposure is still in progress, could not get exposure result"))
-            return log.return_error(_("Exposure is still in progress"),{"error": "Exposure is still in progress"})
+            logger.error(_("Exposure is still in progress, could not get exposure result"))
+            return return_error(_("Exposure is still in progress"),{"error": "Exposure is still in progress"})
         try:
             hist = None
             base64_encode_img = None
@@ -692,7 +691,7 @@ class AscomCameraAPI(BasicCameraAPI):
                     self.info._imgarray = True
                 else:
                     self.info._imgarray = False
-                log.logd(_(f"Camera Image Array : {self.info._imgarray}"))
+                logger.debug(_(f"Camera Image Array : {self.info._imgarray}"))
             img = None
             if self.info._depth == 16:
                 img = np.uint16
@@ -719,7 +718,7 @@ class AscomCameraAPI(BasicCameraAPI):
                 "exposure" : self.info._last_exposure
             }
             if self.info._can_save:
-                log.logd(_("Start saving image data in fits"))
+                logger.debug(_("Start saving image data in fits"))
                 hdr = fits.Header()
                 hdr['COMMENT'] = """FITS (Flexible Image Transport System) format defined in Astronomy and'
                                     Astrophysics Supplement Series v44/p363, v44/p371, v73/p359, v73/p365.
@@ -749,22 +748,22 @@ class AscomCameraAPI(BasicCameraAPI):
                 try:
                     hdu.writeto(_path, overwrite=True)
                 except OSError as e:
-                    log.loge(_(f"Error writing image , error : {e}"))
-                log.logd(_("Save image successfully"))
+                    logger.error(_(f"Error writing image , error : {e}"))
+                logger.debug(_("Save image successfully"))
         except InvalidOperationException as e:
-            log.loge(_(f"No image data available , error : {e}"))
-            return log.return_error(_("No image data available"),{"error":e})
+            logger.error(_(f"No image data available , error : {e}"))
+            return return_error(_("No image data available"),{"error":e})
         except NotConnectedException as e:
-            log.loge(_(f"Remote device is not connected, error : {e}"))
-            return log.return_error(_(error.NotConnected.value),{"error":e})
+            logger.error(_(f"Remote device is not connected, error : {e}"))
+            return return_error(_(error.NotConnected.value),{"error":e})
         except DriverException as e:
-            log.loge(_(f"Remote driver error, {e}"))
-            return log.return_error(error.DriverError.value,{"error":e})
+            logger.error(_(f"Remote driver error, {e}"))
+            return return_error(error.DriverError.value,{"error":e})
         except ConnectionError as e:
-            log.loge(_(f"Network error while get camera configuration, error : {e}"))
-            return log.return_error(error.NetworkError.value,{"error":e})
+            logger.error(_(f"Network error while get camera configuration, error : {e}"))
+            return return_error(error.NetworkError.value,{"error":e})
         
-        return log.return_success(_("Save image successfully"),{"image" : base64_encode_img,"histogram" : hist,"info" : info})
+        return return_success(_("Save image successfully"),{"image" : base64_encode_img,"histogram" : hist,"info" : info})
         
     def start_sequence_exposure(self, params: dict) -> dict:
         """
@@ -802,20 +801,20 @@ class AscomCameraAPI(BasicCameraAPI):
                 }
         """
         if not self.info._is_connected:
-            log.logw(_(f"Cannot start sequence exposure, camera is not connected"))
-            return log.return_error(error.NotConnected.value,{"error": error.NotConnected.value})
+            logger.warning(_(f"Cannot start sequence exposure, camera is not connected"))
+            return return_error(error.NotConnected.value,{"error": error.NotConnected.value})
         if self.info._is_exposure:
-            log.logw(_(f"Sequence exposure is already in progress"))
-            return log.return_error(_("Sequence exposure is already in progress"),{"error": "Sequence exposure is already in progress"})
+            logger.warning(_(f"Sequence exposure is already in progress"))
+            return return_error(_("Sequence exposure is already in progress"),{"error": "Sequence exposure is already in progress"})
         
         sequence_count = params.get("sequence_count")
         sequence = params.get("sequence")
         if sequence_count is None or sequence_count <= 0:
-            log.logw(_(f"sequence_count must be greater than 0"))
-            return log.return_error(_("Please provide a reasonable sequence count"),{"error":"sequence_count must be greater than 0"})
+            logger.warning(_(f"sequence_count must be greater than 0"))
+            return return_error(_("Please provide a reasonable sequence count"),{"error":"sequence_count must be greater than 0"})
         if sequence is None or len(sequence) == 0:
-            log.logw(_(f"sequence must not be empty"))
-            return log.return_error(_("Please provide a reasonable sequence"),{"error":"sequence must not be empty"})
+            logger.warning(_(f"sequence must not be empty"))
+            return return_error(_("Please provide a reasonable sequence"),{"error":"sequence must not be empty"})
         
         try:
             # execute each sequence
@@ -829,20 +828,20 @@ class AscomCameraAPI(BasicCameraAPI):
                     mode = "light"
                 exposure = _sequence.get("exposure")
                 if exposure is None:
-                    log.loge(error.NoExposureValue)
-                    return log.return_error(error.NoExposureValue,{"error":error.NoExposureValue})
+                    logger.error(error.NoExposureValue)
+                    return return_error(error.NoExposureValue,{"error":error.NoExposureValue})
                 gain = _sequence.get("gain")
                 if gain is None and self.info._can_gain:
-                    log.loge(error.NoGainValue.value)
-                    return log.return_error(error.NoGainValue.value,{"error":error.NoGainValue.value})
+                    logger.error(error.NoGainValue.value)
+                    return return_error(error.NoGainValue.value,{"error":error.NoGainValue.value})
                 offset = _sequence.get("offset")
                 if offset is None and self.info._can_offset:
-                    log.loge(error.NoOffsetValue.value)
-                    return log.return_error(error.NoOffsetValue.value,{"error":error.NoOffsetValue.value})
+                    logger.error(error.NoOffsetValue.value)
+                    return return_error(error.NoOffsetValue.value,{"error":error.NoOffsetValue.value})
                 iso = _sequence.get("iso")
                 if iso is None and self.info._can_iso:
-                    log.loge(error.NoISOValue.value)
-                    return log.return_error(error.NoISOValue.value,{"error":error.NoISOValue.value})
+                    logger.error(error.NoISOValue.value)
+                    return return_error(error.NoISOValue.value,{"error":error.NoISOValue.value})
                 duration = _sequence.get("duration")
                 binning = _sequence.get("binning")
                 if duration is None:
@@ -853,13 +852,13 @@ class AscomCameraAPI(BasicCameraAPI):
                 cooling = _sequence.get("cooling")
                 filterwheel = _sequence.get("filterwheel")
                 if filterwheel:
-                    log.logd(_("Filter"))
+                    logger.debug(_("Filter"))
                 if cooling:
-                    log.logd(_("Cooling"))
-                log.log(_(f"Start sequence '{name}' exposure"))
+                    logger.debug(_("Cooling"))
+                logger.info(_(f"Start sequence '{name}' exposure"))
                 count = 1
                 for _id in range(repeat):
-                    log.log(_(f"Start capture no.{count} image"))
+                    logger.info(_(f"Start capture no.{count} image"))
                     r = {
                         "exposure" : exposure,
                         "gain" : gain,
@@ -873,22 +872,22 @@ class AscomCameraAPI(BasicCameraAPI):
                             "type" : "fits"
                         }
                     }
-                    log.log(_(f"Start No.{_id} image capture"))
+                    logger.info(_(f"Start No.{_id} image capture"))
                     res = self.start_exposure(r)
                     if res.get("status") == 1:
-                        log.loge(_(f"Some error occurred when camera was exposuring , error : {res.get('message')}"))
+                        logger.error(_(f"Some error occurred when camera was exposuring , error : {res.get('message')}"))
                     elif res.get("status") == 2:
-                        log.logw(_(f"Some warning occurred when camera was exposuring , warning : {res.get('message')}"))
+                        logger.warning(_(f"Some warning occurred when camera was exposuring , warning : {res.get('message')}"))
                     res = self.get_exposure_result()
                     if res.get("status") == 1:
-                        log.loge(_(f"Some error occurred when getting exposure result, error : {res.get('message')}"))
+                        logger.error(_(f"Some error occurred when getting exposure result, error : {res.get('message')}"))
                     elif res.get("status") == 2:
-                        log.logw(_(f"Some warning occurred when getting exposure result, warning : {res.get('message')}"))
+                        logger.warning(_(f"Some warning occurred when getting exposure result, warning : {res.get('message')}"))
 
                     count += 1
         except DriverException as e:
-            log.loge(_("Some error occurred while sequence exposure , error : {e}"))
-            return log.return_error(_("Some error occurred while sequence exposure"),{"error" :e})
+            logger.error(_("Some error occurred while sequence exposure , error : {e}"))
+            return return_error(_("Some error occurred while sequence exposure"),{"error" :e})
 
     def abort_sequence_exposure(self) -> dict:
         """
@@ -902,19 +901,19 @@ class AscomCameraAPI(BasicCameraAPI):
             NOTE : After executing this function , the whole sequence will be reset
         """
         if not self.info._is_connected:
-            log.loge(_("Camera is not connected , please do not execute abort sequence exposure command"))
-            return log.return_error(error.NotConnected.value,{"error": error.NotConnected.value})
+            logger.error(_("Camera is not connected , please do not execute abort sequence exposure command"))
+            return return_error(error.NotConnected.value,{"error": error.NotConnected.value})
         try:
             res = self.abort_exposure()
             if res.get("status") == 1:
-                log.loge(_(f"Some error occurred when aborting exposure, error : {res.get('message')}"))
-                return log.return_error(_("Some error occurred when aborting exposure"),{"error" :res.get('message')})
+                logger.error(_(f"Some error occurred when aborting exposure, error : {res.get('message')}"))
+                return return_error(_("Some error occurred when aborting exposure"),{"error" :res.get('message')})
             elif res.get("status") == 2:
-                log.logw(_(f"Some warning occurred when aborting exposure, warning : {res.get('message')}"))
-                return log.return_error(_("Some warning occurred when aborting exposure"),{"warning" :res.get('message')})
+                logger.warning(_(f"Some warning occurred when aborting exposure, warning : {res.get('message')}"))
+                return return_error(_("Some warning occurred when aborting exposure"),{"warning" :res.get('message')})
         except DriverException as e:
-            log.loge(_("Some error occurred while aborting exposure, error : {e}"))
-            return log.return_error(_("Some error occurred while aborting exposure"),{"error" :e})
+            logger.error(_("Some error occurred while aborting exposure, error : {e}"))
+            return return_error(_("Some error occurred while aborting exposure"),{"error" :e})
 
     def pause_sequence_exposure(self) -> dict:
         """

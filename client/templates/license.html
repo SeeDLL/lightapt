@@ -25,13 +25,15 @@
 
 <head>
     
-    {{ basic.load_basic_meta() }}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
 
     <title>用户协议</title>
 
-    {{ basic.icon() }}
-
-    {{ basic.load_basic_css() }}
+    <link rel="icon" sizes="16x16" type="image/icon" href="/static/textures/icon.ico">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/css/adminlte.min.css">
 
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="/static/css/plugins/OverlayScrollbars.min.css">
@@ -43,7 +45,19 @@
 
 <body class="dark-mode" data-panel-auto-height-mode="height">
     
-    {{ basic.loading() }}
+    <!-- loading开始 -->
+    <div id="loading-animation">
+        <div id="loading-animation-center">
+            <div id="loading-animation-center-absolute">
+                <div class="loading_object" id="loading_four"></div>
+                <div class="loading_object" id="loading_three"></div>
+                <div class="loading_object" id="loading_two"></div>
+                <div class="loading_object" id="loading_one"></div>
+            </div>
+        </div>
+    </div>
+    <script>!function () { function e() { setTimeout(() => { $("#loading-animation").fadeOut(540) }, 500) } window.jQuery ? $(document).ready(() => { e() }) : document.onreadystatechange = (() => { "interactive" === document.readyState && e() }) }();</script>
+    <!-- loading 结束 -->
 
     <div class="wrapper">
         <!-- Main content -->
@@ -189,7 +203,7 @@
                 </p>
                 
                 <p>
-                    6.2 因本协议引起的或与本协议有关的任何争议，各方应友好协商解决;协商不成的，任何一方均可将有关争议提交至郑州仲裁委员会并按照其届时有效的仲裁规则仲裁;仲裁裁决是终局的，对各方均有约束力。
+                    6.2 因本协议引起的或与本协议有关的任何争议，各方应友好协商解决;协商不成的，任何一方均可将有关争议提交至仲裁委员会并按照其届时有效的仲裁规则仲裁;仲裁裁决是终局的，对各方均有约束力。
                 </p>
                 
                 <h4>7. 其他条款</h4>
@@ -203,7 +217,7 @@
                 </p>
                 
                 <p>
-                    7.3 本协议的一切解释权与修改权归作者。
+                    7.3 本协议的一切解释权与修改权在法律允许的最大范围内归作者所有。
                 </p>
 
                 <button type="button" class="btn btn-sm btn-outline-danger btn-block" onclick="window.open('/register')">同意并返回</button>
@@ -212,7 +226,12 @@
         </section>
     </div>
 
-    {{ basic.load_basic_js() }}
+    <!-- jQuery -->
+    <script src="/static/js/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/static/js/adminlte.min.js"></script>
 
     <!-- overlayScrollbars -->
 	<script src="/static/js/jquery/jquery.overlayScrollbars.min.js"></script>

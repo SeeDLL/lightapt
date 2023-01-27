@@ -8,8 +8,7 @@ from tornado.iostream import _ERRNO_CONNRESET
 from tornado.util import errno_from_exception
 
 from utils.i18n import _
-from utils.lightlog import new_lightlog
-logger = new_lightlog(__name__)
+from ..logging import logger
 
 BUF_SIZE = 32 * 1024
 clients = {}  # {ip: {id: worker}}

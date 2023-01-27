@@ -23,8 +23,8 @@ import re
 import xml.etree.ElementTree as ET
 from subprocess import call, check_output, getoutput
 from utils.i18n import _
-from utils.lightlog import lightlog
-logger = lightlog(__name__)
+
+from ..logging import logger , return_error,return_success,return_warning
 
 class INDIDeviceContainer(object):
     """Device driver container"""
@@ -112,9 +112,9 @@ class INDIDriverCollection:
                         self.drivers.append(driver)
 
             except KeyError as e:
-                logger.loge("Error in file %s: attribute %s not found" % (fname, e))
+                logger.error("Error in file %s: attribute %s not found" % (fname, e))
             except ET.ParseError as e:
-                logger.loge("Error in file %s: %s" % (fname, e))
+                logger.error("Error in file %s: %s" % (fname, e))
 
         # Sort all drivers by label
         self.drivers.sort(key=lambda x: x.label)
@@ -233,13 +233,13 @@ class INDIManager(object):
         if self.is_running():
             self.stop_server()
         # Clear the old fifo pipe and create a new one
-        logger.log(_("Deleting fifo pipe at : {}").format(self.fifo_path))
+        logger.info(_("Deleting fifo pipe at : {}").format(self.fifo_path))
         call(['rm', '-f', self.fifo_path])
         call(['mkfifo', self.fifo_path])
         # Just start the server without driver
         cmd = 'indiserver -p {} -m 100 -v -f {} > /tmp/indiserver.log 2>&1 &'.format(self.port, self.fifo_path)
-        logger.logd(cmd)
-        logger.log(_("Started INDI server on port {}").format(self.port))
+        logger.debug(cmd)
+        logger.info(_("Started INDI server on port {}").format(self.port))
         call(cmd, shell=True)
 
     def stop_server(self) -> None:
@@ -251,9 +251,9 @@ class INDIManager(object):
         cmd = "killall indiserver >/dev/null 2>&1"
         res = call(cmd, shell=True)
         if res == 0:
-            logger.log(_("INDI server terminated successfully"))
+            logger.info(_("INDI server terminated successfully"))
         else:
-            logger.loge(_("Failed to terminate indiserver , error code is {}").format(res))
+            logger.error(_("Failed to terminate indiserver , error code is {}").format(res))
 
     def is_running(self) -> bool:
         """
@@ -279,9 +279,9 @@ class INDIManager(object):
 
         cmd = cmd.replace('"', '\\"')
         full_cmd = 'echo "%s" > %s' % (cmd, self.fifo_path)
-        logger.logd(full_cmd)
+        logger.debug(full_cmd)
         call(full_cmd, shell=True)
-        logger.log(_("Started driver : {}").format(driver.name))
+        logger.info(_("Started driver : {}").format(driver.name))
 
         self.running_drivers[driver.label] = driver
 
@@ -298,9 +298,9 @@ class INDIManager(object):
             cmd += ' -n "%s"' % driver.label
         cmd = cmd.replace('"', '\\"')
         full_cmd = 'echo "%s" > %s' % (cmd, self.fifo_path)
-        logger.logd(full_cmd)
+        logger.debug(full_cmd)
         call(full_cmd, shell=True)
-        logger.log(_("Stop running driver : {}").format(driver.label))
+        logger.info(_("Stop running driver : {}").format(driver.label))
 
         del self.running_drivers[driver.label]
 
@@ -367,7 +367,7 @@ class INDIManager(object):
                 devices.append({"device": device_name.group(), "connected": val == "On"})
             return devices
         except Exception as e:
-            logger.loge(e)
+            logger.error(e)
 
 import json
 from flask import Flask,render_template,request
@@ -521,7 +521,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
             Restart the device
         """
         if not device in ["camera","telescope","focuser","filterwheel","guider","sovler"]:
-            logger.loge(_("Unknown type of device need to be restarted"))
+            logger.error(_("Unknown type of device need to be restarted"))
             return json.dumps({"error": _("Unknown device type")})
 
         for case in switch(device):
@@ -531,7 +531,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                         indi_server.stop_driver(indi_collection.get_by_label(c.config['indi']['camera']['name']))
                         indi_server.start_driver(indi_collection.get_by_label(c.config['indi']['camera']['name']))
                 except KeyError as e:
-                    logger.loge(_("No camera found or configuration is missing").format(str(e)))
+                    logger.error(_("No camera found or configuration is missing").format(str(e)))
                     return json.dumps({"error" : _("No camera found or configuration is missing")})
                 break
             if case("telescope"):
@@ -540,7 +540,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                         indi_server.stop_driver(indi_collection.get_by_label(c.config['indi']['telescope']['name']))
                         indi_server.start_driver(indi_collection.get_by_label(c.config['indi']['telescope']['name']))
                 except KeyError as e:
-                    logger.loge(_("No telescope found or configuration is missing : {}").format(str(e)))
+                    logger.error(_("No telescope found or configuration is missing : {}").format(str(e)))
                     return json.dumps({"error" : _("No telescope found or configuration is missing")})
                 break
             if case("focuser"):
@@ -549,7 +549,7 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                         indi_server.stop_driver(indi_collection.get_by_label(c.config['indi']['focuser']['name']))
                         indi_server.start_driver(indi_collection.get_by_label(c.config['indi']['focuser']['name']))
                 except KeyError as e:
-                    logger.loge(_("No focuser found or configuration is missing : {}").format(str(e)))
+                    logger.error(_("No focuser found or configuration is missing : {}").format(str(e)))
                     return json.dumps({"error" : _("No focuser found or configuration is missing")})
                 break
             if case("filterwheel"):
@@ -558,10 +558,10 @@ def create_indimanager_html(app : Flask,csrf) -> None:
                         indi_server.stop_driver(indi_collection.get_by_label(c.config['indi']['filterwheel']['name']))
                         indi_server.start_driver(indi_collection.get_by_label(c.config['indi']['filterwheel']['name']))
                 except KeyError as e:
-                    logger.loge(_("No filterwheel found or configuration is missing : {}").format(str(e)))
+                    logger.error(_("No filterwheel found or configuration is missing : {}").format(str(e)))
                     return json.dumps({"error" : _("No filterwheel found or configuration is missing")})
                 break
-            logger.loge(_("Unknown device type"))
+            logger.error(_("Unknown device type"))
             return json.dumps({"error" : _("Unknown device type")})
             
     @app.route('/devices/api/<device>/disconnect',methods=["GET"])

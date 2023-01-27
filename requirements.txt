@@ -1,10 +1,5 @@
 astropy
 ephem
-eventlet
-Flask
-Flask-Login
-Flask-SocketIO
-Flask_wtf
 numpy
 paramiko
 psutil

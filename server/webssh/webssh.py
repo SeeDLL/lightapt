@@ -10,8 +10,7 @@ from server.webssh.settings import (
     get_ssl_context, get_server_settings, check_encoding_setting
 )
 
-from utils.lightlog import new_lightlog
-logger = new_lightlog(__name__)
+from ..logging import logger
 
 def make_handlers(loop, options):
     host_keys_settings = get_host_keys_settings(options)

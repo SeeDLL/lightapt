@@ -12,8 +12,7 @@ from server.webssh.utils import (
 )
 
 import server.config as c
-from utils.lightlog import new_lightlog
-logger = new_lightlog(__name__)
+from ..logging import logger
 
 define('address', default='', help='Listen address')
 define('port', type=int, default=8888,  help='Listen port')

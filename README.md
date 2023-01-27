@@ -1,5 +1,3 @@
-[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=AstroAir-Develop-Team_lightapt&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=AstroAir-Develop-Team_lightapt)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=AstroAir-Develop-Team_lightapt&metric=bugs)](https://sonarcloud.io/summary/new_code?id=AstroAir-Develop-Team_lightapt)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=AstroAir-Develop-Team_lightapt&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=AstroAir-Develop-Team_lightapt)
 [![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=AstroAir-Develop-Team_lightapt&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=AstroAir-Develop-Team_lightapt)
 
@@ -49,11 +47,6 @@ Pay attention to that optional dependencies are recommended to be installed for 
 
 + astropy(optional) : For fits image processing and astronomical calculation
 + ephem : Calculate star coordinates
-+ eventlet : Pure Python high performance wsgi server
-+ flask : Main web server
-+ flask-login : Login module for Flask
-+ flask-socketio : Socketio module for Flask
-+ flask-wtf : Wtf module for flask to make it more secure
 + numpy : Image processing and calculations
 + paramiko(optional) : SSH client to support WebSSH
 + psutil(optional) : System units

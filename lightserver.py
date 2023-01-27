@@ -30,12 +30,10 @@ Boston, MA 02110-1301, USA.
 """
 
 import argparse,os,json
-import threading
 
 import server.config as c
 from utils.i18n import _
-from utils.lightlog import lightlog
-logger = lightlog(__name__)
+from server.logging import logger
 
 def main():
     """
@@ -48,11 +46,11 @@ def main():
         with open(os.path.join(os.getcwd(),"config","config.json"),mode="r",encoding="utf-8") as f:
             c.config = json.load(f)
     except FileNotFoundError as e:
-        logger.loge(_("Config file not found : {}").format(str(e)))
+        logger.error(_("Config file not found : {}").format(str(e)))
     except json.JSONDecodeError as e:
-        logger.loge(_("Config file is not valid : {}").format(str(e)))
+        logger.error(_("Config file is not valid : {}").format(str(e)))
     except:
-        logger.loge(_("Unknown error while reading config file : {}").format(str(e)))
+        logger.error(_("Unknown error while reading config file : {}").format(str(e)))
 
     # Command line arguments
     parser = argparse.ArgumentParser()
@@ -88,68 +86,59 @@ def main():
     if args.host:
         _host = args.host
         if not isinstance(_host,str):
-            logger.loge(_("Invalid host"))
+            logger.error(_("Invalid host"))
         c.config["host"] = _host
-        logger.log(_("Server host : {}").format(_host))
+        logger.info(_("Server host : {}").format(_host))
     # Change the port if the command line argument is specified
     if args.port:
         _port = int(args.port)
         if not isinstance(_port,int):
-            logger.loge(_("Invalid port"))
+            logger.error(_("Invalid port"))
         c.config["port"] = _port
-        logger.log(_("Server port : {}").format(_port))
+        logger.info(_("Server port : {}").format(_port))
     # Change the debug mode if available
     if args.debug:
         """Debug mode"""
         c.config["debug"] = False
-        logger.log(_("DEBUG mode is enabled"))
+        logger.info(_("DEBUG mode is enabled"))
     # Change the threaded mode if available
     if args.threaded:
         """Threaded mode"""
         c.config["threaded"] = args.threaded
-        logger.log(_("Threaded mode is enabled"))
+        logger.info(_("Threaded mode is enabled"))
     # Change the INDI web manager options if available
     try:
         if args.indihost:
             c.config["indiweb"]["host"] = args.indihost
-            logger.log(_("INDI server host : {}").format(c.config["indiweb"]["host"]))
+            logger.info(_("INDI server host : {}").format(c.config["indiweb"]["host"]))
         if args.indiport:
             c.config["indiweb"]["port"] = args.indiport
-            logger.log(_("INDI server port : {}").format(c.config["indiweb"]["port"]))
+            logger.info(_("INDI server port : {}").format(c.config["indiweb"]["port"]))
         if args.indidata:
             c.config["indiweb"]["data"] = args.indidata
-            logger.log(_("INDI data path : {}").format(c.config["indiweb"]["data"]))
+            logger.info(_("INDI data path : {}").format(c.config["indiweb"]["data"]))
         if args.indififo:
             c.config["indiweb"]["fifo"] = args.indififo
-            logger.log(_("INDI fifo pipe path : {}").format(c.config["indiweb"]["fifo"]))
+            logger.info(_("INDI fifo pipe path : {}").format(c.config["indiweb"]["fifo"]))
         try:
             c.config["indiweb"]["config"] = os.path.join(os.environ['HOME'], '.indi')
         except KeyError:
             c.config["indiweb"]["config"] = '/tmp/indi'
     except KeyError as e:
-        logger.loge(_("Invalid INDI web manager options : {}").format(str(e)))
+        logger.error(_("Invalid INDI web manager options : {}").format(str(e)))
     # Start the web server
     try:
-        # Start the websocket server
-        from server.wsserver import ws_server
-        _ws_ = ws_server()
-        _ws_.start_server(c.config["ws"]["host"], c.config["ws"]["port"], c.config["ws"]["ssl"],c.config["ws"]["key"], c.config["ws"]["cert"])
-        # Start the webssh server
         from server.webssh.webssh import start_webssh
         from multiprocessing import Process
+        # Start the webssh server
         _webssh_ = Process(target=start_webssh)
         _webssh_.daemon = True
         _webssh_.start()
-        # Start the INDI wrapper server
-        """import server.pyindi_ws_api.IndiWebsocketTornadoServer as indiserver
-        _indiwrapper_ = Process(target=indiserver.main)
-        _indiwrapper_.daemon = True
-        _indiwrapper_.start()"""
-        # Start the main server
-        from server.webapp import run_server
-        run_server()
+        # Run main web server
+        from server.wsapp import async_run_server
+        async_run_server()
     except KeyboardInterrupt:
-        logger.log(_("Shutdown LightAPT server by user"))
+        logger.info(_("Shutdown LightAPT server by user"))
 
 if __name__ == "__main__":
     main()

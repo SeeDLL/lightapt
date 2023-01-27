@@ -2,8 +2,7 @@ import os.path
 import threading
 import paramiko
 
-from utils.lightlog import new_lightlog
-logger = new_lightlog(__name__)
+from ..logging import logger
 
 def load_host_keys(path : str):
     if os.path.exists(path) and os.path.isfile(path):

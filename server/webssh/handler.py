@@ -22,8 +22,7 @@ from json.decoder import JSONDecodeError
 
 from urllib.parse import urlparse
 
-from utils.lightlog import new_lightlog
-logger = new_lightlog(__name__)
+from ..logging import logger
 
 DEFAULT_PORT = 22
 

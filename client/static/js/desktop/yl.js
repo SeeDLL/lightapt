@@ -882,13 +882,13 @@ window.YL = {
       }
     },
     updateUrlRandomToken: function (url, tokenName, token) {
-      tokenName || (tokenName = 'ylrandomToken');
+      tokenName || (tokenName = 'randomToken');
       var params = {};
       params[tokenName] = token ? token : this.randInt(1000, 9999);
       return this.urlParams(url, params)
     },
     removeUrlRandomToken: function (url, tokenName) {
-      tokenName || (tokenName = 'ylrandomToken');
+      tokenName || (tokenName = 'randomToken');
 
       var p = Yuri2.parseURL(url);
       var strParams = '?';

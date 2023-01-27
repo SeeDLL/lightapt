@@ -8,7 +8,7 @@ from server.webapp import app
 
 import server.config as c
 from utils.i18n import _
-from utils.lightlog import lightlog
+from obsolete.lightlog import lightlog
 logger = lightlog(__name__)
 
 class gpsTimeout(Exception):

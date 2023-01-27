@@ -37,8 +37,7 @@ from libs.alpyca.exceptions import (DriverException,
 from server.basic.telescope import BasicTelescopeAPI,BasicTelescopeInfo
 
 from utils.i18n import _
-from utils.lightlog import lightlog
-logger = lightlog(__name__)
+from ...logging import logger,return_error,return_success
 
 class AscomTelescopeAPI(BasicTelescopeAPI):
     """
@@ -87,8 +86,8 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                     info : dict # BasicTelescopeInfo.get_dict()
         """
         if self.info._is_connected or self.device is not None:
-            logger.loge(_("Telescope had already connected , please do not connect again"))
-            return logger.return_error(_("Telescope has already connected"),{"info":self.info.get_dict()})
+            logger.error(_("Telescope had already connected , please do not connect again"))
+            return return_error(_("Telescope has already connected"),{"info":self.info.get_dict()})
         # Get the parameters if parameters is not specified , just use the default parameters
         _host = params.get("host","127.0.0.1")
         _port = params.get("port",11111)
@@ -100,19 +99,19 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             # Make telescope connected
             self.device.Connected = True
         except DriverException as e:
-            logger.loge(_("Failed to connect to telescope : {}").format(str(e)))
-            return logger.return_error(_("Failed to connect telescope"),{"error": str(e)})
+            logger.error(_("Failed to connect to telescope : {}").format(str(e)))
+            return return_error(_("Failed to connect telescope"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error while connecting to telescope : {}").format(str(e)))
-            return logger.return_error(_("Network error while connecting to telescope"),{"error": str(e)})
+            logger.error(_("Network error while connecting to telescope : {}").format(str(e)))
+            return return_error(_("Network error while connecting to telescope"),{"error": str(e)})
 
-        logger.log(_("Connected to telescope successfully"))
+        logger.info(_("Connected to telescope successfully"))
         self.info._is_connected = True
         res = self.get_configration()
         if res.get("status") != 0:
-            logger.loge(res.get("message"))
-            return logger.return_error(res.get("message"))
-        return logger.return_success(res.get("message"),{"info":self.info.get_dict()})
+            logger.error(res.get("message"))
+            return return_error(res.get("message"))
+        return return_success(res.get("message"),{"info":self.info.get_dict()})
 
     def disconnect(self) -> dict:
         """
@@ -125,29 +124,29 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # If the telescope is not connected , do not execute disconnecting command
         if not self.info._is_connected or self.device is None:
-            logger.loge(_("Telescope had not connected , please connect before disconnecting"))
-            return logger.return_error(_("Telescope has not connected"),{})
+            logger.error(_("Telescope had not connected , please connect before disconnecting"))
+            return return_error(_("Telescope has not connected"),{})
         # If the telescope is slewing , stop it before disconnecting
         if self.info._is_slewing:
-            logger.logw(_("Telescope is slewing , trying to abort the operation"))
+            logger.warning(_("Telescope is slewing , trying to abort the operation"))
             res = self.abort_goto()
             if res.get("status") != 0:
-                logger.loge(res.get("message"))
-                return logger.return_error(res.get("message"),{"error":res.get("params",{}).get("error")})
+                logger.error(res.get("message"))
+                return return_error(res.get("message"),{"error":res.get("params",{}).get("error")})
         # Trying to disconnect from the server , however this just destroys the connection not the server
         try:
             self.device.Connected = False
         except DriverException as e:
-            logger.loge(_("Failed to disconnect from telescope : {}").format(str(e)))
-            return logger.return_error(_("Failed to disconnect telescope"),{"error": str(e)})
+            logger.error(_("Failed to disconnect from telescope : {}").format(str(e)))
+            return return_error(_("Failed to disconnect telescope"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error while disconnecting from telescope : {}").format(str(e)))
-            return logger.return_error(_("Network error while disconnecting from telescope"),{"error":str(e)})
+            logger.error(_("Network error while disconnecting from telescope : {}").format(str(e)))
+            return return_error(_("Network error while disconnecting from telescope"),{"error":str(e)})
         # If disconnecting from the server succeeded, clear the variables
         self.device = None
         self.info._is_connected = False
-        logger.log(_("Disconnected from server successfully"))
-        return logger.return_success(_("Disconnected from server successfully"),{})
+        logger.info(_("Disconnected from server successfully"))
+        return return_success(_("Disconnected from server successfully"),{})
 
     def reconnect(self) -> dict:
         """
@@ -162,15 +161,15 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # If the telescope is not connected, do not execute reconnecting command
         if not self.info._is_connected or self.device is None:
-            logger.loge(_("Telescope had not connected, please connect before reconnecting"))
-            return logger.return_error(_("Telescope has not connected"),{})
+            logger.error(_("Telescope had not connected, please connect before reconnecting"))
+            return return_error(_("Telescope has not connected"),{})
         # If the telescope is slewing, stop it before reconnecting
         if self.info._is_slewing:
-            logger.logw(_("Telescope is slewing, trying to reconnect"))
+            logger.warning(_("Telescope is slewing, trying to reconnect"))
             res = self.reconnect_goto()
             if res.get("status")!= 0:
-                logger.loge(res.get("message"))
-                return logger.return_error(res.get("message"),{"error":res.get("params",{}).get("error")})
+                logger.error(res.get("message"))
+                return return_error(res.get("message"),{"error":res.get("params",{}).get("error")})
         # Trying to reconnect the telescope , but we hope that the server is working properly
         self.info._is_connected = False
         try:
@@ -178,15 +177,15 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             sleep(1)
             self.device.Connected = True
         except DriverException as e:
-            logger.loge(_("Failed to reconnect to telescope : {}").format(str(e)))
-            return logger.return_error(_("Failed to reconnect telescope"),{"error": str(e)})
+            logger.error(_("Failed to reconnect to telescope : {}").format(str(e)))
+            return return_error(_("Failed to reconnect telescope"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error while reconnecting to telescope : {}").format(str(e)))
-            return logger.return_error(_("Network error while reconnecting to telescope"),{"error":str(e)})
+            logger.error(_("Network error while reconnecting to telescope : {}").format(str(e)))
+            return return_error(_("Network error while reconnecting to telescope"),{"error":str(e)})
         # Do not forget to set the status
         self.info._is_connected = True
-        logger.log(_("Reconnected telescope successfully"))
-        return logger.return_success(_("Reconnected telescope successfully"),{"info": self.info.get_dict()})
+        logger.info(_("Reconnected telescope successfully"))
+        return return_success(_("Reconnected telescope successfully"),{"info": self.info.get_dict()})
     
     def scanning(self) -> dict:
         """
@@ -201,8 +200,8 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         # Though this is a little bit strange that if a telescope had already connected,
         # you can not scanning the other telescopes,this is because too many requests may make the server down
         if self.info._is_connected or self.device is not None:
-            logger.loge(_("Please disconnect from the telescope before scanning other telescopes"))
-            return logger.return_error(_("Telescope has already connected"),{})
+            logger.error(_("Please disconnect from the telescope before scanning other telescopes"))
+            return return_error(_("Telescope has already connected"),{})
         # Scanning is just try a few port the server probably running on , the most reliable port is 11111
         telescope_list = []
         for port in range(11111,11116):
@@ -214,7 +213,7 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                 s.bind(ip)
                 s.shutdown(2)
             except socket.error:
-                logger.log(_("{}:{} may have a server listening on").format("127.0.0.1", port))
+                logger.info(_("{}:{} may have a server listening on").format("127.0.0.1", port))
                 # Just try if backend of this port is ASCOM Remote Server
                 try:
                     self.device = Telescope("127.0.0.1:"+port,0)
@@ -224,15 +223,15 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                     sleep(0.1)
                     self.device.Connected = False
                 except DriverException as e:
-                    logger.loge(_("Failed to connect to telescope : {}").format(str(e)))
+                    logger.error(_("Failed to connect to telescope : {}").format(str(e)))
                 except exceptions.ConnectionError as e:
-                    logger.loge(_("Network error while scanning to telescope : {}").format(str(e)))
+                    logger.error(_("Network error while scanning to telescope : {}").format(str(e)))
         # If no telescope is found,just return an error and a empty list
         if len(telescope_list) == 0:
-            logger.loge(_("No telescope found"))
-            return logger.return_error(_("No telescope found"),{})
-        logger.log(_("Found {} telescope , list : {}").format(len(telescope_list),telescope_list))
-        return logger.return_success(
+            logger.error(_("No telescope found"))
+            return return_error(_("No telescope found"),{})
+        logger.info(_("Found {} telescope , list : {}").format(len(telescope_list),telescope_list))
+        return return_success(
             _("Found {} telescope").format(len(telescope_list)),
             {"telescope" : telescope_list})
 
@@ -249,11 +248,11 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                     because this will cause a huge lag and waste system usage.
         """
         if not self.info._is_connected or self.device is None:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         res = self.info.get_dict()
-        logger.logd(_("New telescope information : {}").format(res))
-        return logger.return_success(_("Polling teleescope information"),{"info":res})
+        logger.debug(_("New telescope information : {}").format(res))
+        return return_success(_("Polling teleescope information"),{"info":res})
 
     def get_configration(self) -> dict:
         """
@@ -265,22 +264,22 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                 params : None
         """
         if not self.info._is_connected or self.device is None:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
-        logger.log(_("Trying to get telescope configuration"))
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
+        logger.info(_("Trying to get telescope configuration"))
         try:
             # Basic information , all of the telescopes have these
             self.info._name = self.device.Name
-            logger.logd(_(f"Telescope name : {self.info._name}"))
+            logger.debug(_(f"Telescope name : {self.info._name}"))
             # This client number is just a random number , do not have a specific meaning
             self.info._id = self.device._client_id
-            logger.logd(_(f"Telescope ID : {self.info._id}"))
+            logger.debug(_(f"Telescope ID : {self.info._id}"))
             self.info._description = self.device.Description
-            logger.logd(_(f"Telescope description : {self.info._description}"))
+            logger.debug(_(f"Telescope description : {self.info._description}"))
             self.info._ipaddress = self.device.address
-            logger.logd(_(f"Telescope IP address : {self.info._ipaddress}"))
+            logger.debug(_(f"Telescope IP address : {self.info._ipaddress}"))
             self.info._api_version = self.device.api_version
-            logger.logd(_(f"Telescope API version : {self.info._api_version}"))
+            logger.debug(_(f"Telescope API version : {self.info._api_version}"))
 
             # Get the coordinates system of the current telescope
             self.info.coord_system = self.device.EquatorialSystem
@@ -290,39 +289,39 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             # check is better solution
             # NOTE : _can_set_track_ra_rate and _can_set_track_dec_rate are moved to below part staying with rates
             self.info._can_park = self.device.CanPark
-            logger.logd(_("Telescope Can Park : {}").format(self.info._can_park))
+            logger.debug(_("Telescope Can Park : {}").format(self.info._can_park))
             self.info._can_set_park_postion = self.device.CanSetPark
-            logger.logd(_("Telescope Can Set Parking Position : {}").format(self.info._can_set_park_postion))
+            logger.debug(_("Telescope Can Set Parking Position : {}").format(self.info._can_set_park_postion))
 
             # Check if RA axis is available to goto , I don't know whether a single axis telescope can goto
             self.info._can_goto = self.device.CanMoveAxis(TelescopeAxes.axisPrimary)
-            logger.logd(_(f"Telescope Can Slew : {self.info._can_goto}"))
+            logger.debug(_(f"Telescope Can Slew : {self.info._can_goto}"))
 
             # I think that every telescope must can abort goto operation ,
             # If not how we to rescue it when error happens
             self.info._can_ahort_goto = True
-            logger.logd(_("Telescope Can Abort Slew : {}").format(self.info._can_ahort_goto))
+            logger.debug(_("Telescope Can Abort Slew : {}").format(self.info._can_ahort_goto))
             self.info._can_track = self.device.CanSetTracking
-            logger.logd(_("Telescope Can Track : {}").format(self.info._can_track))
+            logger.debug(_("Telescope Can Track : {}").format(self.info._can_track))
             self.info._can_sync = self.device.CanSync
-            logger.logd(_("Telescope Can Sync : {}").format(self.info._can_sync))
+            logger.debug(_("Telescope Can Sync : {}").format(self.info._can_sync))
             # We are very sure about that our telescopes can slewing fast enough to catch the satelite 
             self.info._can_track_satellite = True
-            logger.logd(_("Telescope Can Track Satellite : {}").format(self.info._can_track_satellite))
+            logger.debug(_("Telescope Can Track Satellite : {}").format(self.info._can_track_satellite))
             self.info._can_home = self.device.CanFindHome
-            logger.logd(_("Telescope Can Find Home : {}").format(self.info._can_home))
+            logger.debug(_("Telescope Can Find Home : {}").format(self.info._can_home))
 
             # Check whether we can get the location of the telescope
             # If there is no location available , it will cause NotImplementedException,
             # so we just need to catch the exception and judge whether having location values
             try:
                 self.info.lon = self.device.SiteLongitude
-                logger.logd(_("Telescope Longitude : {}").format(self.info.lon))
+                logger.debug(_("Telescope Longitude : {}").format(self.info.lon))
                 self.info.lat = self.device.SiteLatitude
-                logger.logd(_("Telescope Latitude : {}").format(self.info.lat))
+                logger.debug(_("Telescope Latitude : {}").format(self.info.lat))
                 self.info._can_get_location = True
             except NotImplementedException as e:
-                logger.logw(_("Can not get telescope location : {}").format(str(e)))
+                logger.warning(_("Can not get telescope location : {}").format(str(e)))
                 self.info._can_get_location = False
                 self.info.lon = ""
                 self.info.lat = ""
@@ -331,11 +330,11 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             # For example is the telescope is parked , that means we can not execute other commands,
             # before unparked the telescope . Make sure the telescope is safe
             self.info._is_parked = self.device.AtPark
-            logger.logd(_("Is Telescope At Park Position : {}").format(self.info._is_parked))
+            logger.debug(_("Is Telescope At Park Position : {}").format(self.info._is_parked))
             self.info._is_tracking = self.device.Tracking
-            logger.logd(_("Is Telescope Tracking : {}").format(self.info._is_tracking))
+            logger.debug(_("Is Telescope Tracking : {}").format(self.info._is_tracking))
             self.info._is_slewing = self.device.Slewing
-            logger.logd(_("Is Telescope Slewing : {}").format(self.info._is_slewing))
+            logger.debug(_("Is Telescope Slewing : {}").format(self.info._is_slewing))
 
             # Get telescope targeted RA and DEC values
             self.info.ra = self.device.RightAscension
@@ -344,7 +343,7 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                 self.info.az = self.device.Azimuth
                 self.info.alt = self.device.Altitude
             except NotImplementedException as e:
-                logger.logw(_("Telescope do not have az/alt mode enabled"))
+                logger.warning(_("Telescope do not have az/alt mode enabled"))
                 self.info._can_az_alt = False
                 self.info.az = ""
                 self.info.alt = ""
@@ -358,9 +357,9 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                         # Tracking rate of the RightAscenion axis 
                         self.info.track_ra_rate = self.device.RightAscensionRate
                         self.info._can_ra_track = True
-                        logger.logd(_("Telescope Right Ascension Rate : {}").format(self.info.track_ra_rate))
+                        logger.debug(_("Telescope Right Ascension Rate : {}").format(self.info.track_ra_rate))
                     except NotImplementedException as e:
-                        logger.logw(_("Telescope RA axis track mode can not be set"))
+                        logger.warning(_("Telescope RA axis track mode can not be set"))
                         self.info._can_set_track_ra_rate = False
                 # Just like RA , we need to check first to avoid unexpected errors
                 self.info._can_set_track_dec_rate = self.device.CanSetDeclinationRate
@@ -369,57 +368,57 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                         # Tracking rate of the Declination axis
                         self.info.track_dec_rate = self.device.DeclinationRate
                         self.info._can_dec_track = True
-                        logger.logd(_("Telescope Declination Rate : {}").format(self.info.track_dec_rate))
+                        logger.debug(_("Telescope Declination Rate : {}").format(self.info.track_dec_rate))
                     except NotImplementedException as e:
-                        logger.logw(_("Telescope Dec axis track mode can not be set"))
+                        logger.warning(_("Telescope Dec axis track mode can not be set"))
                         self.info._can_set_track_dec_rate = False
 
                 self.info.track_mode = self.device.TrackingRate
-                logger.logd(_("Telescope Tracking Mode : {}").format(self.info.track_mode))
+                logger.debug(_("Telescope Tracking Mode : {}").format(self.info.track_mode))
                 self.info._can_set_track_mode = True
 
             # Get the maximum and minimum of the available telescope RA axis rate values
             self.info.slewing_ra_rate = self.device.AxisRates(TelescopeAxes.axisPrimary)
             self.info.max_slewing_ra_rate = self.info.slewing_ra_rate[0].Maximum
-            logger.logd(_("Max Right Ascension Rate : {}").format(self.info.max_slewing_ra_rate))
+            logger.debug(_("Max Right Ascension Rate : {}").format(self.info.max_slewing_ra_rate))
             self.info.min_slewing_ra_rate = self.info.slewing_ra_rate[0].Minimum
-            logger.logd(_("Min Right Ascension Rate : {}").format(self.info.min_slewing_ra_rate))
+            logger.debug(_("Min Right Ascension Rate : {}").format(self.info.min_slewing_ra_rate))
 
             # Before get the DEC axis, we need to know whether the telescope has DEC axis enabled
             self.info._can_dec_axis = self.device.CanMoveAxis(TelescopeAxes.axisSecondary)
             if self.info._can_dec_axis:
                 self.info.slewing_dec_rate = self.device.AxisRates(TelescopeAxes.axisSecondary)
                 self.info.max_slewing_dec_rate = self.info.slewing_dec_rate[0].Maximum
-                logger.logd(_("Max Declination Rate : {}").format(self.info.max_slewing_dec_rate))
+                logger.debug(_("Max Declination Rate : {}").format(self.info.max_slewing_dec_rate))
                 self.info.min_slewing_dec_rate = self.info.slewing_dec_rate[0].Minimum
-                logger.logd(_("Min Declination Rate : {}").format(self.info.min_slewing_dec_rate))
+                logger.debug(_("Min Declination Rate : {}").format(self.info.min_slewing_dec_rate))
             else:
                 self.info.slewing_dec_rate = []
                 self.info.max_slewing_dec_rate = -1
                 self.info.min_slewing_dec_rate = -1
 
         except InvalidOperationException as e:
-            logger.loge(_("Invalid operation : {}").format(str(e)))
-            return logger.return_error(_("Invalid operation"),{"error":str(e)})
+            logger.error(_("Invalid operation : {}").format(str(e)))
+            return return_error(_("Invalid operation"),{"error":str(e)})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected while getting settings : {}").format(str(e)))
+            logger.error(_("Telescope is not connected while getting settings : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error":str(e)})
+            return return_error(_("Telescope is not connected"),{"error":str(e)})
         except InvalidValueException as e:
-            logger.loge(_("Some invalid value was provided : {}").format(str(e)))
-            return logger.return_error(_("Some invalid value was provided"),{"error":str(e)})
+            logger.error(_("Some invalid value was provided : {}").format(str(e)))
+            return return_error(_("Some invalid value was provided"),{"error":str(e)})
         except NotImplementedException as e:
-            logger.loge(_("Telescope is not supported : {}").format(str(e)))
-            return logger.return_error(_("Telescope is not supported"),{"error":str(e)})
+            logger.error(_("Telescope is not supported : {}").format(str(e)))
+            return return_error(_("Telescope is not supported"),{"error":str(e)})
         except DriverException as e:
-            logger.loge(_("Failed to get telescope configuration : {}").format(str(e)))
-            return logger.return_error(_("Failed to get telescope configuration"),{"error":str(e)})
+            logger.error(_("Failed to get telescope configuration : {}").format(str(e)))
+            return return_error(_("Failed to get telescope configuration"),{"error":str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error":str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error":str(e)})
 
-        logger.log(_("Refresh telescope settings successfully"))
-        return logger.return_success(_("Refresh telescope settings successfully"),{})
+        logger.info(_("Refresh telescope settings successfully"))
+        return return_success(_("Refresh telescope settings successfully"),{})
 
     def set_configration(self, params: dict) -> dict:
         return super().set_configration(params)
@@ -449,11 +448,11 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                 try:
                     file.write(dumps(self.info.get_dict(),indent=4,ensure_ascii=False))
                 except JSONDecodeError as e:
-                    logger.loge(_("JSON decoder error , error : {}").format(str(e)))
+                    logger.error(_("JSON decoder error , error : {}").format(str(e)))
         except OSError as e:
-            logger.loge(_(f"Failed to write configuration to file , error : {e}"))
-        logger.log(_("Save telescope configuration to file successfully"))
-        return logger.return_success(_("Save telescope configuration to file successfully"),{})
+            logger.error(_(f"Failed to write configuration to file , error : {e}"))
+        logger.info(_("Save telescope configuration to file successfully"))
+        return return_success(_("Save telescope configuration to file successfully"),{})
 
     # #################################################################
     #
@@ -480,14 +479,14 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # Check if the telescope is available to goto
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         if self.info._is_slewing:
-            logger.loge(_("Telescope is slewing"))
-            return logger.return_error(_("Telescope is slewing"),{})
+            logger.error(_("Telescope is slewing"))
+            return return_error(_("Telescope is slewing"),{})
         if self.info._is_parked:
-            logger.loge(_("Telescope is parked"))
-            return logger.return_error(_("Telescope is parked"),{})
+            logger.error(_("Telescope is parked"))
+            return return_error(_("Telescope is parked"),{})
 
         _j2000 = params.get('j2000',False)
         _ra = params.get('ra')
@@ -501,24 +500,24 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         if not _ra and not _dec and _az and _alt:
             # If the telescope do not support this mode
             if not self.info._can_az_alt:
-                logger.loge(_("AZ/ALT mode is not available"))
-                return logger.return_error(_("AZ/ALT mode is not available"),{})
-            logger.log(_("Using AzAlt mode"))
+                logger.error(_("AZ/ALT mode is not available"))
+                return return_error(_("AZ/ALT mode is not available"),{})
+            logger.info(_("Using AzAlt mode"))
             # Check if the coordinates provided are valid
             if not isinstance(_az,str) or not isinstance(_alt,str) or not re.match("\d{2}:\d{2}:\d{2}",_az) or not re.match("\d{2}:\d{2}:\d{2}",_alt):
-                logger.loge(_("Invalid AZ or Alt coordinate value"))
-                return logger.return_error(_("Invalid AZ or Alt coordinate value"),{})
+                logger.error(_("Invalid AZ or Alt coordinate value"))
+                return return_error(_("Invalid AZ or Alt coordinate value"),{})
             az_alt_flag = True
         # This means GEM or CEM telescope
         if _ra and _dec:
-            logger.log(_("Check the coordinates of the target"))
+            logger.info(_("Check the coordinates of the target"))
             if not isinstance(_ra,str) or not isinstance(_dec,str) or not re.match("\d{2}:\d{2}:\d{2}",_ra) or not re.match("\d{2}:\d{2}:\d{2}",_dec):
-                logger.loge(_("Invalid RA or Dec coordinate value"))
-                return logger.return_error(_("Invalid RA or Dec coordinate value"),{})
+                logger.error(_("Invalid RA or Dec coordinate value"))
+                return return_error(_("Invalid RA or Dec coordinate value"),{})
         # If all of the parameters are provided , how can we choose , so just return an error
         if _az and _alt and _ra and _dec:
-            logger.loge(_("Please specify RA/DEC or AZ/ALT mode in one time"))
-            return logger.return_error(_("Please specify RA/DEC or AZ/ALT mode in one time"),{})
+            logger.error(_("Please specify RA/DEC or AZ/ALT mode in one time"))
+            return return_error(_("Please specify RA/DEC or AZ/ALT mode in one time"),{})
 
         if az_alt_flag:
             _ra = _az
@@ -537,36 +536,36 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         _format_dec = _dec_h +  _dec_m /60 + _dec_s / 3600
         # CHeck if the current RA and DEC are the same as target RA and DEC
         if self.device.RightAscension == _format_ra and self.device.Declination == _format_dec:
-            logger.loge(_("Telescope is already targeted the right position"))
-            return logger.return_error(_("Telescope is already targeted the right position"),{})
+            logger.error(_("Telescope is already targeted the right position"))
+            return return_error(_("Telescope is already targeted the right position"),{})
 
         # Trying to start goto operation
         try:
             self.device.Tracking = True
             self.device.SlewToCoordinatesAsync(_format_ra,_format_dec)
         except ParkedException as e:
-            logger.loge(_("Telescope is parked : {}").format(str(e)))
-            return logger.return_error(_("Telescope is parked"),{"error": str(e)})
+            logger.error(_("Telescope is parked : {}").format(str(e)))
+            return return_error(_("Telescope is parked"),{"error": str(e)})
         except NotImplementedException as e:
-            logger.loge(_("Telescope is not supported : {}").format(str(e)))
-            return logger.return_error(_("Telescope is not supported"),{"error": str(e)})
+            logger.error(_("Telescope is not supported : {}").format(str(e)))
+            return return_error(_("Telescope is not supported"),{"error": str(e)})
         except InvalidValueException as e:
-            logger.loge(_("Invalid value : {}").format(str(e)))
-            return logger.return_error(_("Invalid value"),{"error": str(e)})
+            logger.error(_("Invalid value : {}").format(str(e)))
+            return return_error(_("Invalid value"),{"error": str(e)})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error": str(e)})
+            return return_error(_("Telescope is not connected"),{"error": str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error": str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error": str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error": str(e)})
 
         self.info._is_slewing = True
-        logger.log(_("Telescope is slewing to the target"))
-        return logger.return_success(_("Telescope is slewing to the target"),{})
+        logger.info(_("Telescope is slewing to the target"))
+        return return_success(_("Telescope is slewing to the target"),{})
 
     def abort_goto(self) -> dict:
         """
@@ -583,40 +582,40 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # Check if the telescope is connected
         if not self.device.Connected:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         # Check if the telescope is truly slewing
         if not self.device.Slewing:
-            logger.loge(_("Telescope is not slewing"))
-            return logger.return_error(_("Telescope is not slewing"),{})
+            logger.error(_("Telescope is not slewing"))
+            return return_error(_("Telescope is not slewing"),{})
         if self.info._is_parked:
-            logger.loge(_("Telescope is parked"))
-            return logger.return_error(_("Telescope is parked"),{})
+            logger.error(_("Telescope is parked"))
+            return return_error(_("Telescope is parked"),{})
 
         # Trying to abort goto operation
         try:
             self.device.AbortSlew()
         except InvalidOperationException as e:
-            logger.loge(_("Invalid operation : {}").format(str(e)))
-            return logger.return_error(_("Invalid operation"),{"error": str(e)})
+            logger.error(_("Invalid operation : {}").format(str(e)))
+            return return_error(_("Invalid operation"),{"error": str(e)})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error": str(e)})
+            return return_error(_("Telescope is not connected"),{"error": str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error": str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error": str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error": str(e)})
         
         sleep(0.1)
         if not self.device.Slewing:
             self.info._is_slewing = False
-            logger.log(_("Aborting goto operation successfully"))
+            logger.info(_("Aborting goto operation successfully"))
         else:
-            logger.log(_("Aborting goto operation failed"))
-            return logger.return_error(_("Aborting goto operation failed"),{})
+            logger.info(_("Aborting goto operation failed"))
+            return return_error(_("Aborting goto operation failed"),{})
         
         # Though I don't think after such a few time the telescope will lose connection , just be careful
         try:
@@ -625,17 +624,17 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             if self.info._can_dec_axis:
                 current_dec = self.device.Declination
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error": str(e)})
+            return return_error(_("Telescope is not connected"),{"error": str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error": str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error": str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error": str(e)})
 
-        return logger.return_success(_("Aborted goto operation successfully"),{"ra":current_ra,"dec":current_dec})
+        return return_success(_("Aborted goto operation successfully"),{"ra":current_ra,"dec":current_dec})
 
     def get_goto_status(self) -> dict:
         """
@@ -651,8 +650,8 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # Check whether the telescope is parked
         if self.info._is_parked:
-            logger.loge(_("Telescope is parked"))
-            return logger.return_error(_("Telescope is parked"),{})
+            logger.error(_("Telescope is parked"))
+            return return_error(_("Telescope is parked"),{})
         try:
             status = self.device.Slewing
             ra = self.device.RightAscension
@@ -661,26 +660,26 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                 dec = self.device.Declination
         except NotImplementedException as e:
             self.info._is_slewing = False
-            logger.loge(_("Telescope is not support slewing : {}").format(str(e)))
-            return logger.return_error(_("Telescope is not support slewing"),{"error": str(e)})
+            logger.error(_("Telescope is not support slewing : {}").format(str(e)))
+            return return_error(_("Telescope is not support slewing"),{"error": str(e)})
         except NotConnectedException as e:
             self.info._is_slewing = False
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error": str(e)})
+            return return_error(_("Telescope is not connected"),{"error": str(e)})
         except DriverException as e:
             self.info._is_slewing = False
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error": str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error": str(e)})
         except exceptions.ConnectionError as e:
             self.info._is_slewing = False
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error": str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error": str(e)})
         
         self.info._is_slewing = status 
         
-        logger.logd(_("Telescope slewing status : {} , Current RA : {} , Current DEC : {}").format(status,ra,dec))
-        return logger.return_success(_("Refresh telescope status successfully"),{"status":status,"ra":ra,"dec":dec})
+        logger.debug(_("Telescope slewing status : {} , Current RA : {} , Current DEC : {}").format(status,ra,dec))
+        return return_success(_("Refresh telescope status successfully"),{"status":status,"ra":ra,"dec":dec})
 
     def get_goto_result(self) -> dict:
         """
@@ -695,36 +694,36 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # Check if the telescope is connected
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         # Check if the teleescope is parked
         if self.info._is_parked:
-            logger.loge(_("Telescope is parked"))
-            return logger.return_error(_("Telescope is parked"),{})
+            logger.error(_("Telescope is parked"))
+            return return_error(_("Telescope is parked"),{})
         # Check if the telescope is slewing
         if self.info._is_slewing:
-            logger.loge(_("Telescope is slewing"))
-            return logger.return_error(_("Telescope is slewing"),{})
+            logger.error(_("Telescope is slewing"))
+            return return_error(_("Telescope is slewing"),{})
         try:
             ra = self.device.RightAscension
             dec = None
             if self.info._can_dec_axis:
                 dec = self.device.Declination
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error":str(e)})
+            return return_error(_("Telescope is not connected"),{"error":str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error":str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error":str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error : {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error":str(e)})
+            logger.error(_("Network error : {}").format(str(e)))
+            return return_error(_("Network error"),{"error":str(e)})
 
-        logger.log(_("Goto result : RA : {} DEC : {}").format(ra,dec))
+        logger.info(_("Goto result : RA : {} DEC : {}").format(ra,dec))
         self.info.ra = ra
         self.info.dec = dec
-        return logger.return_success(_("Get goto result successfully"),{"ra":self.info.ra, "dec":self.info.dec})
+        return return_success(_("Get goto result successfully"),{"ra":self.info.ra, "dec":self.info.dec})
 
     def park(self) -> dict:
         """
@@ -737,43 +736,43 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             NOTE : Just like the parent class
         """
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
+            logger.error(_("Telescope is not connected"))
             return logger.error(_("Telescope is not connected"),{})
         if self.info._is_parked:
-            logger.logw(_("Telescope had already parked"))
-            return logger.return_success(_("Telescope has already parked"),{})
+            logger.warning(_("Telescope had already parked"))
+            return return_success(_("Telescope has already parked"),{})
 
         if not self.info._can_park:
-            logger.loge(_("Telescope do not support park function"))
-            return logger.return_error(_("Telescope does not support park function"),{})
+            logger.error(_("Telescope do not support park function"))
+            return return_error(_("Telescope does not support park function"),{})
 
         try:
             self.device.Park()
         except NotImplementedException as e:
-            logger.loge(_("Telescope does not support park function"))
-            return logger.return_error(_("Telescope does not support park function"),{})
+            logger.error(_("Telescope does not support park function"))
+            return return_error(_("Telescope does not support park function"),{})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error": str(e)})
+            return return_error(_("Telescope is not connected"),{"error": str(e)})
         except SlavedException as e:
-            logger.loge(_("Slaved exception: {}").format(str(e)))
-            return logger.return_error(_("Slaved exception: {}"),{"error": str(e)})
+            logger.error(_("Slaved exception: {}").format(str(e)))
+            return return_error(_("Slaved exception: {}"),{"error": str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error": str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error": str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error": str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error": str(e)})
         except exceptions.ReadTimeout as e:
-            logger.loge(_("Read timeout: {}").format(str(e)))
-            return logger.return_error(_("Read timeout: {}"),{"error":str(e)})
+            logger.error(_("Read timeout: {}").format(str(e)))
+            return return_error(_("Read timeout: {}"),{"error":str(e)})
         
-        logger.loge(_("Telescope started parking successfully"))
+        logger.error(_("Telescope started parking successfully"))
 
         self.info._is_parked = True
 
-        return logger.return_success(_("Telescope parked successfully"),{})
+        return return_success(_("Telescope parked successfully"),{})
 
     def unpark(self) -> dict:
         """
@@ -786,31 +785,31 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             NOTE : This function must be called if the telescope is parked
         """
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         if not self.info._is_parked or not self.device.AtPark:
-            logger.loge(_("Telescope is not parked"))
-            return logger.loge(_("Telescope is not parked"))
+            logger.error(_("Telescope is not parked"))
+            return logger.error(_("Telescope is not parked"))
         
         try:
             self.device.Unpark()
         except NotImplementedException as e:
-            logger.loge(_("Telescope is not supported to unpark"))
-            return logger.return_error(_("Telescope is not supported to unpark"),{"error":str(e)})
+            logger.error(_("Telescope is not supported to unpark"))
+            return return_error(_("Telescope is not supported to unpark"),{"error":str(e)})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error":str(e)})
+            return return_error(_("Telescope is not connected"),{"error":str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error: {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error":str(e)})
+            logger.error(_("Telescope driver error: {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error":str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error: {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error":str(e)})
+            logger.error(_("Network error: {}").format(str(e)))
+            return return_error(_("Network error"),{"error":str(e)})
         
-        logger.log(_("Telescope is unparked successfully"))
+        logger.info(_("Telescope is unparked successfully"))
         self.info._is_parked = False
-        return logger.return_success(_("Telescope is unparked successfully"),{})
+        return return_success(_("Telescope is unparked successfully"),{})
 
     def get_park_position(self) -> dict:
         """
@@ -824,12 +823,12 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             NOTE : This function needs telescope supported
         """
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return_error(_("Telescope is not connected"),{})
 
         if not self.info._can_park:
-            logger.loge(_("Telescope is not supporting park function"))
-            return logger.return_error(_("Telescope is not supporting park function"),{})
+            logger.error(_("Telescope is not supporting park function"))
+            return return_error(_("Telescope is not supporting park function"),{})
 
         # TODO : A little bit of embarrassing that it seems that Alpyca doesn't support getting parking position
 
@@ -851,11 +850,11 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
         """
         # Regular check the telescope status
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         if not self.info._can_set_park_postion:
-            logger.loge(_("Telescope is not support to set parking position"))
-            return logger.return_error(_("Telescope is not support to set parking position"),{})
+            logger.error(_("Telescope is not support to set parking position"))
+            return return_error(_("Telescope is not support to set parking position"),{})
 
         # Check if the parameters are valid or just empty string
         ra = params.get('ra')
@@ -865,14 +864,14 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             ra_h , ra_m , ra_s = map(int,ra.split(":"))
             self.info.park_ra = ra_h + ra_m / 60 + ra_s / 3600
         else:
-            logger.logw(_("Unknown type of the RA value are specified , just use the current RA value instead"))
+            logger.warning(_("Unknown type of the RA value are specified , just use the current RA value instead"))
             self.info.park_ra = self.device.RightAscension
 
         if dec is not None and isinstance(dec,str) and re.match("\d{2}:\d{2}:\d{2}",dec):
             dec_h , dec_m , dec_s = map(int, dec.split(':'))
             self.info.park_dec = dec_h + dec_m / 60 + dec_s / 3600
         else:
-            logger.logw(_("Unknown type of the DEC value are specified , just use the current DEC value instead"))
+            logger.warning(_("Unknown type of the DEC value are specified , just use the current DEC value instead"))
             self.info.park_dec = self.device.Declination
 
         # Trying to set the position of the park operation
@@ -890,25 +889,25 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             self.device.SetPark()
 
         except NotImplementedException as e:
-            logger.loge(_("Telescope is not supported to set parking position").format(str(e)))
+            logger.error(_("Telescope is not supported to set parking position").format(str(e)))
             self.info._can_set_park_postion = False
-            return logger.loge(_("Telescope is not supported to set parking position"),{"error":str(e)})
+            return logger.error(_("Telescope is not supported to set parking position"),{"error":str(e)})
         except InvalidValueException as e:
-            logger.loge(_("Invalid value was specified : {}").format(str(e)))
-            return logger.return_error(_("Invalid value was specified"),{"error":str(e)})
+            logger.error(_("Invalid value was specified : {}").format(str(e)))
+            return return_error(_("Invalid value was specified"),{"error":str(e)})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected : {}").format(str(e)))
             self.info._is_connected = False
-            return logger.return_error(_("Telescope is not connected"),{"error" : str(e)})
+            return return_error(_("Telescope is not connected"),{"error" : str(e)})
         except DriverException as e:
-            logger.loge(_("Telescope driver error : {}").format(str(e)))
-            return logger.return_error(_("Telescope driver error"),{"error":str(e)})
+            logger.error(_("Telescope driver error : {}").format(str(e)))
+            return return_error(_("Telescope driver error"),{"error":str(e)})
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error : {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error" : str(e)})
+            logger.error(_("Network error : {}").format(str(e)))
+            return return_error(_("Network error"),{"error" : str(e)})
 
-        logger.log(_("Set park position successfully"))
-        return logger.return_success(_("Set park position successfully"),{})
+        logger.info(_("Set park position successfully"))
+        return return_success(_("Set park position successfully"),{})
 
     def home(self) -> dict:
         """
@@ -921,16 +920,16 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
             NOTE : This function may need telescope supported
         """
         if not self.info._is_connected:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected"),{})
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected"),{})
         
         if self.info._is_parked:
-            logger.loge(_("Telescope had already parked , please unpark the telescope before home operation"))
-            return logger.return_error(_("Telescope had already parked"),{})
+            logger.error(_("Telescope had already parked , please unpark the telescope before home operation"))
+            return return_error(_("Telescope had already parked"),{})
         
         if self.info._is_slewing:
-            logger.loge(_("Telescope is slewing , please wait for a moment"))
-            return logger.return_error(_("Telescope is slewing"),{})
+            logger.error(_("Telescope is slewing , please wait for a moment"))
+            return return_error(_("Telescope is slewing"),{})
         
         try:
             self.device.FindHome()
@@ -944,25 +943,25 @@ class AscomTelescopeAPI(BasicTelescopeAPI):
                 self.info.ra = self.device.RightAscension
                 if self.info._can_dec_axis:
                     self.info.dec = self.device.Declination
-                logger.logd(_("In returning home processing , RA : {} , DEC : {}").format(self.info.ra,self.info.dec))
+                logger.debug(_("In returning home processing , RA : {} , DEC : {}").format(self.info.ra,self.info.dec))
                 sleep(1)
                 used_time += 1
 
             if not flag:
-                logger.loge(_("Timeout waiting for telescope move to home position"))
-                return logger.return_error(_("Timeout waiting for telescope move to home position"),{})
+                logger.error(_("Timeout waiting for telescope move to home position"))
+                return return_error(_("Timeout waiting for telescope move to home position"),{})
 
         except NotImplementedException as e:
-            logger.loge(_("Telescope is not support home function"))
+            logger.error(_("Telescope is not support home function"))
             self.info._can_home = False
-            return logger.return_error(_("Telescope is not support home function"),{"error": e})
+            return return_error(_("Telescope is not support home function"),{"error": e})
         except NotConnectedException as e:
-            logger.loge(_("Telescope is not connected"))
-            return logger.return_error(_("Telescope is not connected : {}").format(str(e)))
+            logger.error(_("Telescope is not connected"))
+            return return_error(_("Telescope is not connected : {}").format(str(e)))
         except exceptions.ConnectionError as e:
-            logger.loge(_("Network error : {}").format(str(e)))
-            return logger.return_error(_("Network error"),{"error":str(e)})
+            logger.error(_("Network error : {}").format(str(e)))
+            return return_error(_("Network error"),{"error":str(e)})
 
-        logger.log(_("Telescope returned home successfully , home at RA {} DEC {}").format(self.info.ra,self.info.dec))
+        logger.info(_("Telescope returned home successfully , home at RA {} DEC {}").format(self.info.ra,self.info.dec))
 
-        return logger.return_success(_("Telescope returned home successfully"),{})            
+        return return_success(_("Telescope returned home successfully"),{})            

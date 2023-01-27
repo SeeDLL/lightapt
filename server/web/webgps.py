@@ -23,10 +23,8 @@ from PIL import Image, ImageDraw
 import time, base64, math, io, sys
 
 import server.plugins.gps3 as gps3
-
-from server.webapp import socketio
 from utils.i18n import _
-from utils.lightlog import lightlog
+from obsolete.lightlog import lightlog
 logger = lightlog(__name__)
 
 # define colors for skymap

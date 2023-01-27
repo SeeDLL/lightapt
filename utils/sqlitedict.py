@@ -38,8 +38,7 @@ from collections import UserDict as DictClass
 
 from queue import Queue
 
-from utils.lightlog import lightlog
-logger = lightlog(__name__)
+from ..server.logging import logger
 
 #
 # There's a thread that holds the actual SQL connection (SqliteMultithread).
@@ -155,7 +154,7 @@ class SqliteDict(DictClass):
         self.decode_key = decode_key
         self._outer_stack = outer_stack
 
-        logger.logd("opening Sqlite table %r in %r" % (tablename, filename))
+        logger.debug("opening Sqlite table %r in %r" % (tablename, filename))
         self.conn = self._new_conn()
         if self.flag == 'r':
             if self.tablename not in SqliteDict.get_tablenames(self.filename):
@@ -316,7 +315,7 @@ class SqliteDict(DictClass):
 
     def close(self, do_log=True, force=False):
         if do_log:
-            logger.logd("closing %s" % self)
+            logger.debug("closing %s" % self)
         if hasattr(self, 'conn') and self.conn is not None:
             if self.conn.autocommit and not force:
                 # typically calls to commit are non-blocking when autocommit is
@@ -342,12 +341,12 @@ class SqliteDict(DictClass):
         if self.filename == ':memory:':
             return
 
-        logger.log("deleting %s" % self.filename)
+        logger.info("deleting %s" % self.filename)
         try:
             if os.path.isfile(self.filename):
                 os.remove(self.filename)
         except (OSError, IOError):
-            logger.loge("failed to delete %s" % (self.filename))
+            logger.error("failed to delete %s" % (self.filename))
 
     def __del__(self):
         # like close(), but assume globals are gone by now (do not log!)
@@ -375,7 +374,6 @@ class SqliteMultithread(threading.Thread):
         self.reqs = Queue()
         self.daemon = True
         self._outer_stack = outer_stack
-        self.log = lightlog('sqlitedict.SqliteMultithread')
 
         #
         # Parts of this object's state get accessed from different threads, so
@@ -406,7 +404,7 @@ class SqliteMultithread(threading.Thread):
             else:
                 conn = sqlite3.connect(self.filename, check_same_thread=False)
         except Exception:
-            self.log.loge("Failed to initialize connection for filename: %s" % self.filename)
+            logger.error("Failed to initialize connection for filename: %s" % self.filename)
             self.exception = sys.exc_info()
             raise
 
@@ -417,7 +415,7 @@ class SqliteMultithread(threading.Thread):
             conn.commit()
             cursor.execute('PRAGMA synchronous=OFF')
         except Exception:
-            self.log.loge("Failed to execute PRAGMA statements.")
+            logger.error("Failed to execute PRAGMA statements.")
             self.exception = sys.exc_info()
             raise
 
@@ -481,9 +479,9 @@ class SqliteMultithread(threading.Thread):
                         self.log.error('Outer stack:')
                         for item in traceback.format_list(outer_stack):
                             self.log.error(item)
-                        self.log.loge('Exception will be re-raised at next call.')
+                        logger.error('Exception will be re-raised at next call.')
                     else:
-                        self.log.loge(
+                        logger.error(
                             'Unable to show the outer stack. Pass ' + 
                             'outer_stack=True when initializing the ' + 
                             'SqliteDict instance to show the outer stack.'
@@ -504,7 +502,7 @@ class SqliteMultithread(threading.Thread):
                 if self.autocommit:
                     conn.commit()
 
-        self.log.logd('received: %s, send: --no more--'% req)
+        logger.debug('received: %s, send: --no more--'% req)
         conn.close()
 
         _put(res_ref, _RESPONSE_NO_MORE)
@@ -526,7 +524,7 @@ class SqliteMultithread(threading.Thread):
                 # exception, we should not repeatedly re-raise it.
                 self.exception = None
 
-                self.log.loge('An exception occurred from a previous statement, view '
+                logger.error('An exception occurred from a previous statement, view '
                                'the logging namespace "sqlitedict" for outer stack.')
 
                 # The third argument to raise is the traceback object, and it is

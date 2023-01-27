@@ -74,8 +74,8 @@ JSON.format = formatJson = function (json, options) {
         formatted += padding + node + '\r\n';
         pad += indent
     });
-    var data = '<pre><code class="json">' + formatted + "</code></pre>";
-    if (hljs !== undefined) data = '<pre><code class="json">' + hljs.highlightAuto(formatted).value + "</code></pre>";
+    var data = '<pre class="text-white"><code class="json">' + formatted + "</code></pre>";
+    if (hljs !== undefined) data = '<pre class="text-white"><code class="json">' + hljs.highlightAuto(formatted).value + "</code></pre>";
     return data
 };
 
@@ -90,7 +90,7 @@ var Vm = new Vue({
         consoleData: [], // 控制台日志
         messageData: [], // 消息记录
         instance: WebSocket, // ws instance
-        address: 'ws://127.0.0.1:5000', // 链接地址
+        address: 'ws://127.0.0.1:8080/', // 链接地址
         alert: {
             class: 'success',
             state: false,

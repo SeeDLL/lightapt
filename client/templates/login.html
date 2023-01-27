@@ -24,13 +24,18 @@
 
 <head>
     
-    {{ basic.load_basic_meta() }}
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1,user-scalable=no">
 
     <title>登录</title>
 
-    {{ basic.icon() }}
+    <link rel="icon" sizes="16x16" type="image/icon" href="/static/textures/icon.ico">
 
-    {{ basic.load_basic_css() }}
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/css/fontawesome/fontawesome.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/css/adminlte.min.css">
     
     <!-- icheck bootstrap -->
     <link rel="stylesheet" href="/static/css/bootstrap/icheck-bootstrap.min.css">
@@ -47,8 +52,8 @@
             <div class="card-body">
                 <p class="login-box-msg">登陆开始星空之旅</p>
 
-                <form action="{{ url_for('login') }}" method="post">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <form action="/login" method="post">
+                    {% module xsrf_form_html() %}
                     <div class="input-group mb-3 input-group-sm">
                         <input id="username" name="username" type="text" class="form-control form-control-sm" placeholder="用户名">
                         <div class="input-group-append">
@@ -82,20 +87,6 @@
                     </div>
                 </form>
                 <br>
-                {% if error %}
-                <div class="alert alert-danger alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h5><i class="icon fas fa-ban"></i>错误</h5>
-                    {{ error }}
-                </div>
-                {% endif %}
-                {% if info %}
-                <div class="alert alert-info alert-dismissible">
-                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-                    <h5><i class="icon fas fa-info"></i>提示</h5>
-                    {{ info }}
-                </div>
-                {% endif %}
                 <p class="mb-1">
                     <a href="/forget-password">忘记密码？</a>
                 </p>
@@ -109,7 +100,12 @@
     </div>
     <!-- /.login-box -->
 
-    {{ basic.load_basic_js() }}
+    <!-- jQuery -->
+    <script src="/static/js/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="/static/js/bootstrap/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="/static/js/adminlte.min.js"></script>
     
 </body>
 
