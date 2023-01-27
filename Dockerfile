@@ -7,7 +7,7 @@ RUN mkdir /app ; \
     swig \
     libcfitsio-dev \
     libnova-dev ; \
-    https://github.com/indilib/pyindi-client.git /app/pyindi-client; \
+    git clone https://github.com/indilib/pyindi-client.git /app/pyindi-client; \
     cd  /app/pyindi-client ; \
     python setup.py install ; \
     cd /app ; \
