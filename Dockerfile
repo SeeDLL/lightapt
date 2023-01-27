@@ -13,7 +13,10 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
 		indi-full \
 		indi-bin \
 		gsc \
-		kstars-bleeding \
+		kstars-bleeding \ 
+		libindi-dev swig \
+		libcfitsio-dev \
+		libnova-dev \
 		; \
 	rm -rf /var/lib/apt/lists/* ;\
 	mkdir /app ; \
@@ -21,6 +24,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
 	git clone https://github.com/AstroAir-Develop-Team/lightapt /app/lightapt ;\
 	cd /app/lightapt; \
 	pip install -r requirements.txt; \
+	pip install pyindi-client ; \
 	touch /app/Entrypoint.sh ; \
     echo "#!/bin/bash" >> /app/Entrypoint.sh ; \
 	echo "cd /app/lightapt" >> /app/Entrypoint.sh ; \
