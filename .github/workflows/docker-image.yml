@@ -55,7 +55,3 @@ jobs:
           tags: |
             ${{ vars.REGISTRY }}:${{ steps.date.outputs.today }}
             ${{ vars.REGISTRY }}:latest
-            
-      - name: Send Update Msg To WebHook
-        run: |
-          curl '${{ vars.MSG }}'
