@@ -52,9 +52,5 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: |
-            ${{ vars.REGISTRY }}:${{ steps.date.outputs.today }}
-            ${{ vars.REGISTRY }}:latest
-      
-      - name: Send Update Msg To WebHook
-        run: |
-          curl -A "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.5414.119 Safari/537.36" '${{ vars.MSG }}'
+            ${{ secrets.REGISTRY }}:${{ steps.date.outputs.today }}
+            ${{ secrets.REGISTRY }}:latest
