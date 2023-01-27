@@ -3,6 +3,10 @@ FROM seedll/indi
 # runtime dependencies
 RUN mkdir /app ; \
     cd /app ; \
+    apt-get install -y libindi-dev \
+    swig \
+    libcfitsio-dev \
+    libnova-dev ; \
     https://github.com/indilib/pyindi-client.git /app/pyindi-client; \
     cd  /app/pyindi-client ; \
     python setup.py install ; \
