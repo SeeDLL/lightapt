@@ -21,7 +21,7 @@ RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime; \
 	rm -rf /var/lib/apt/lists/* ;\
 	mkdir /app ; \
 	cd /app ; \
-	git clone https://github.com/geehalel/pyindi-client.git /app/pyindi-client; \
+	https://github.com/indilib/pyindi-client.git /app/pyindi-client; \
 	cd  /app/pyindi-client ; \
 	python setup.py install ; \
 	cd /app ; \
